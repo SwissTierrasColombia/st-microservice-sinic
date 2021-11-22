@@ -42,7 +42,6 @@ public abstract class ApiController {
             SubRoles subRole = managerBusiness.userManagerIsSINIC(userDtoSession.getId()) ? SubRoles.SINIC_MANAGER : SubRoles.DIRECTOR;
             return new InformationSession(Roles.MANAGER, managerDto.getId(), userDtoSession.getId(), managerDto.getName(), subRole);
         } else if (administrationBusiness.isAdministrator(userDtoSession)) {
-
             return new InformationSession(Roles.CADASTRAL_AUTHORITY, userDtoSession.getId());
         }
         throw new RuntimeException("User information not found");
@@ -105,6 +104,15 @@ public abstract class ApiController {
         public boolean isSinic() {
             return this.subRole() != null && this.subRole().equals(SubRoles.SINIC_MANAGER);
         }
+
+        public boolean isManager() {
+            return this.role().equals(Roles.MANAGER);
+        }
+
+        public boolean isCadastalAuthority() {
+            return this.role().equals(Roles.CADASTRAL_AUTHORITY);
+        }
+
     }
 
 }
