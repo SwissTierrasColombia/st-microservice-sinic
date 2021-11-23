@@ -3,6 +3,8 @@ package com.ai.st.microservice.sinic.modules.shared.infrastructure.compressor;
 import com.ai.st.microservice.sinic.modules.shared.domain.contracts.CompressorFile;
 import com.ai.st.microservice.sinic.modules.shared.domain.exceptions.CompressError;
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -17,6 +19,7 @@ import java.util.zip.ZipOutputStream;
 @Service
 public final class ZIPCompressorFile implements CompressorFile {
 
+    private final Logger log = LoggerFactory.getLogger(ZIPCompressorFile.class);
 
     @Override
     public int countEntries(String filePath) throws CompressError {
@@ -58,13 +61,9 @@ public final class ZIPCompressorFile implements CompressorFile {
 
         try {
 
-            boolean directoryCreatedSuccessful = new File(namespace).mkdirs();
-            if (!directoryCreatedSuccessful) {
-                throw new CompressError("Ha ocurrido un error creando el directorio del zip.");
-            }
-
             String path = namespace + File.separatorChar + zipName + ".zip";
 
+            new File(namespace).mkdirs();
             File fileZip = new File(path);
             if (fileZip.exists()) {
                 boolean fileRemovedSuccessful = fileZip.delete();
@@ -94,9 +93,8 @@ public final class ZIPCompressorFile implements CompressorFile {
 
             return path;
 
-        } catch (CompressError e) {
-            throw new CompressError(e.errorMessage());
-        } catch (IOException e) {
+        } catch (Exception e) {
+            log.error("Error zipping file: " + e.getMessage());
             throw new CompressError("Ha ocurrido un error creando el archivo zip.");
         }
     }

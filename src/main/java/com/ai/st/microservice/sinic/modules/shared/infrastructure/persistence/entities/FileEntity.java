@@ -12,8 +12,14 @@ public final class FileEntity {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @Column(name = "uuid", nullable = false, length = 36)
+    private String uuid;
+
     @Column(name = "url", nullable = false, length = 1000)
     private String url;
+
+    @Column(name = "log", length = 1000)
+    private String log;
 
     @Column(name = "observations", length = 1000)
     private String observations;
@@ -121,5 +127,21 @@ public final class FileEntity {
 
     public void setDelivery(DeliveryEntity delivery) {
         this.delivery = delivery;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public String getLog() {
+        return log;
+    }
+
+    public void setLog(String log) {
+        this.log = log;
     }
 }

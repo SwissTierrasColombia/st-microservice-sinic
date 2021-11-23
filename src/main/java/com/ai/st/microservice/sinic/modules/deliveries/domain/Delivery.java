@@ -122,6 +122,13 @@ public final class Delivery extends AggregateRoot {
         return statusFound != null;
     }
 
+    public boolean isAvailableToManager() {
+        DeliveryStatus statusFound =
+                statusesAllowedToManager().stream().filter(s -> s.value().name().equals(status.value().name()))
+                        .findAny().orElse(null);
+        return statusFound != null;
+    }
+
     public boolean isDraft() {
         return status.value().equals(DeliveryStatus.Status.DRAFT);
     }

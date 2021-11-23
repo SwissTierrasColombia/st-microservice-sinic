@@ -5,7 +5,6 @@ import com.ai.st.microservice.common.business.ManagerBusiness;
 import com.ai.st.microservice.common.dto.general.BasicResponseDto;
 import com.ai.st.microservice.common.exceptions.InputValidationException;
 import com.ai.st.microservice.sinic.entrypoints.controllers.ApiController;
-import com.ai.st.microservice.sinic.modules.deliveries.application.create_delivery.CreateDeliveryCommand;
 import com.ai.st.microservice.sinic.modules.files.application.add_file.FileAdder;
 import com.ai.st.microservice.sinic.modules.files.application.add_file.FileAdderCommand;
 import com.ai.st.microservice.sinic.modules.shared.domain.DomainError;
@@ -41,14 +40,15 @@ public final class FilePostController extends ApiController {
         this.compressorFile = compressorFile;
     }
 
-    @PostMapping(value = "api/sinic/v1/deliveries", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Create delivery")
+    @PostMapping(value = "api/sinic/v1/deliveries/{deliveryId}/files", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Add file to delivery")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Delivery created"),
+            @ApiResponse(code = 201, message = "File added"),
             @ApiResponse(code = 500, message = "Error Server", response = String.class)})
     @ResponseBody
     public ResponseEntity<?> addFileToDelivery(
-            @RequestBody AddFileToDelivery request,
+            @PathVariable Long deliveryId,
+            @ModelAttribute AddFileToDelivery request,
             @RequestHeader("authorization") String headerAuthorization) {
 
         HttpStatus httpStatus;
@@ -62,10 +62,11 @@ public final class FilePostController extends ApiController {
                 throw new InputValidationException("El usuario no tiene permisos para crear la entrega.");
             }
 
+            validateDeliveryId(deliveryId);
             validateObservations(request.getObservations());
-            validateXTFFile(request);
 
-            httpStatus = HttpStatus.CREATED;
+            fileAdder.handle(validateFileAndCreateCommand(deliveryId, session.entityCode(), session.userCode(), request));
+            httpStatus = HttpStatus.OK;
 
         } catch (InputValidationException e) {
             log.error("Error FilePostController@addFileToDelivery#Validation ---> " + e.getMessage());
@@ -84,13 +85,19 @@ public final class FilePostController extends ApiController {
         return new ResponseEntity<>(responseDto, httpStatus);
     }
 
+    private void validateDeliveryId(Long deliveryId) throws InputValidationException {
+        if (deliveryId <= 0) {
+            throw new InputValidationException("La entrega no es válida");
+        }
+    }
+
     private void validateObservations(String observations) throws InputValidationException {
         if (observations == null || observations.isEmpty()) {
             throw new InputValidationException("Las observaciones del archivo son obligatorias.");
         }
     }
 
-    private FileAdderCommand validateXTFFile(AddFileToDelivery request)
+    private FileAdderCommand validateFileAndCreateCommand(Long deliveryId, Long managerCode, Long userCode, AddFileToDelivery request)
             throws InputValidationException, IOException {
 
         MultipartFile file = request.getAttachment();
@@ -116,12 +123,8 @@ public final class FilePostController extends ApiController {
 
         storeFile.deleteFile(temporalFilePath);
 
-        if (!request.getVersion().equalsIgnoreCase("1.0") && !request.getVersion().equalsIgnoreCase("1.1")) {
-            throw new InputValidationException("La versión del submodelo de levantamiento debe ser 1.0 o 1.1");
-        }
-
-        return new AttachmentAssignerCommand.XTFAttachment(
-                observations, file.getBytes(), extension, request.getVersion());
+        return new FileAdderCommand(
+                deliveryId, managerCode, userCode, request.getObservations(), file.getBytes(), extension);
     }
 
 }
