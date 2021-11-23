@@ -12,4 +12,8 @@ public interface FileRepository {
 
     void updateFileStatus(FileUUID uuid, FileStatus status, FileLog log);
 
+    File search(FileId fileId);
+
+    void remove(FileId fileId);
+
 }

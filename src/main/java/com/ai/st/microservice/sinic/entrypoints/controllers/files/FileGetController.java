@@ -8,6 +8,10 @@ import com.ai.st.microservice.sinic.entrypoints.controllers.ApiController;
 import com.ai.st.microservice.sinic.modules.files.application.FileResponse;
 import com.ai.st.microservice.sinic.modules.files.application.find_files.FilesFinder;
 import com.ai.st.microservice.sinic.modules.files.application.find_files.FilesFinderQuery;
+import com.ai.st.microservice.sinic.modules.files.application.get_file_url.FileURLGetter;
+import com.ai.st.microservice.sinic.modules.files.application.get_file_url.FileURLGetterQuery;
+import com.ai.st.microservice.sinic.modules.files.application.get_log_url.FileLogURLGetter;
+import com.ai.st.microservice.sinic.modules.files.application.get_log_url.FileLogURLGetterQuery;
 import com.ai.st.microservice.sinic.modules.shared.domain.DomainError;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,7 +31,7 @@ import java.io.FileInputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-@Api(value = "Manage Deliveries", tags = {"Deliveries"})
+@Api(value = "Manage Files", tags = {"Files"})
 @RestController
 public final class FileGetController extends ApiController {
 
@@ -35,12 +39,16 @@ public final class FileGetController extends ApiController {
 
     private final ServletContext servletContext;
     private final FilesFinder filesFinder;
+    private final FileURLGetter fileURLGetter;
+    private final FileLogURLGetter fileLogURLGetter;
 
     public FileGetController(AdministrationBusiness administrationBusiness, ManagerBusiness managerBusiness,
-                             ServletContext servletContext, FilesFinder filesFinder) {
+                             ServletContext servletContext, FilesFinder filesFinder, FileURLGetter fileURLGetter, FileLogURLGetter fileLogURLGetter) {
         super(administrationBusiness, managerBusiness);
         this.servletContext = servletContext;
         this.filesFinder = filesFinder;
+        this.fileURLGetter = fileURLGetter;
+        this.fileLogURLGetter = fileLogURLGetter;
     }
 
     @GetMapping(value = "api/sinic/v1/deliveries/{deliveryId}/files", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -60,7 +68,7 @@ public final class FileGetController extends ApiController {
 
             InformationSession session = this.getInformationSession(headerAuthorization);
 
-            if (!session.isSinic()) {
+            if (session.isManager() && !session.isSinic()) {
                 throw new InputValidationException("El usuario no tiene permisos para consultar los archivos de la entrega.");
             }
 
@@ -87,58 +95,113 @@ public final class FileGetController extends ApiController {
         return new ResponseEntity<>(responseDto, httpStatus);
     }
 
-//    @GetMapping(value = "api/quality/v1/deliveries/{deliveryId}/products/{deliveryProductId}/attachments/{attachmentId}/download")
-//    @ApiOperation(value = "Download file")
-//    @ApiResponses(value = {
-//            @ApiResponse(code = 200, message = "File downloaded"),
-//            @ApiResponse(code = 500, message = "Error Server", response = BasicResponseDto.class)})
-//    @ResponseBody
-//    public ResponseEntity<?> downloadAttachment(@PathVariable Long deliveryId,
-//                                                @PathVariable Long deliveryProductId,
-//                                                @PathVariable Long attachmentId,
-//                                                @RequestHeader("authorization") String headerAuthorization) {
-//
-//        MediaType mediaType;
-//        File file;
-//        InputStreamResource resource;
-//
-//        try {
-//
-//            InformationSession session = this.getInformationSession(headerAuthorization);
-//
-//            validateDeliveryId(deliveryId);
-//            validateDeliveryProductId(deliveryProductId);
-//            validateFileId(attachmentId);
-//
-//            String pathFile = attachmentURLGetter.handle(new AttachmentURLGetterQuery(
-//                    deliveryId, deliveryProductId, attachmentId, session.role(), session.entityCode()
-//            )).value();
-//
-//            Path path = Paths.get(pathFile);
-//            String fileName = path.getFileName().toString();
-//
-//            String mineType = servletContext.getMimeType(fileName);
-//
-//            try {
-//                mediaType = MediaType.parseMediaType(mineType);
-//            } catch (Exception e) {
-//                mediaType = MediaType.APPLICATION_OCTET_STREAM;
-//            }
-//
-//            file = new File(pathFile);
-//            resource = new InputStreamResource(new FileInputStream(file));
-//
-//        } catch (DomainError e) {
-//            log.error("Error FileGetController@downloadAttachment#Domain ---> " + e.getMessage());
-//            return new ResponseEntity<>(new BasicResponseDto(e.errorMessage(), 2), HttpStatus.UNPROCESSABLE_ENTITY);
-//        } catch (Exception e) {
-//            log.error("Error FileGetController@downloadAttachment#General ---> " + e.getMessage());
-//            return new ResponseEntity<>(new BasicResponseDto(e.getMessage(), 1), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//
-//        return this.responseFile(file, mediaType, resource);
-//    }
+    @GetMapping(value = "api/sinic/v1/deliveries/{deliveryId}/files/{fileId}/download")
+    @ApiOperation(value = "Download file")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "File downloaded"),
+            @ApiResponse(code = 500, message = "Error Server", response = BasicResponseDto.class)})
+    @ResponseBody
+    public ResponseEntity<?> downloadFile(
+            @PathVariable Long deliveryId,
+            @PathVariable Long fileId,
+            @RequestHeader("authorization") String headerAuthorization) {
 
+        MediaType mediaType;
+        File file;
+        InputStreamResource resource;
+
+        try {
+
+            InformationSession session = this.getInformationSession(headerAuthorization);
+
+            if (session.isManager() && !session.isSinic()) {
+                throw new InputValidationException("El usuario no tiene permisos para descargar archivos de la entrega.");
+            }
+
+            validateDeliveryId(deliveryId);
+            validateFileId(fileId);
+
+            String pathFile = fileURLGetter.handle(new FileURLGetterQuery(
+                    deliveryId, fileId, session.role(), session.entityCode())).value();
+
+            Path path = Paths.get(pathFile);
+            String fileName = path.getFileName().toString();
+
+            String mineType = servletContext.getMimeType(fileName);
+
+            try {
+                mediaType = MediaType.parseMediaType(mineType);
+            } catch (Exception e) {
+                mediaType = MediaType.APPLICATION_OCTET_STREAM;
+            }
+
+            file = new File(pathFile);
+            resource = new InputStreamResource(new FileInputStream(file));
+
+        } catch (DomainError e) {
+            log.error("Error FileGetController@downloadFile#Domain ---> " + e.getMessage());
+            return new ResponseEntity<>(new BasicResponseDto(e.errorMessage(), 2), HttpStatus.UNPROCESSABLE_ENTITY);
+        } catch (Exception e) {
+            log.error("Error FileGetController@downloadFile#General ---> " + e.getMessage());
+            return new ResponseEntity<>(new BasicResponseDto(e.getMessage(), 1), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return this.responseFile(file, mediaType, resource);
+    }
+
+    @GetMapping(value = "api/sinic/v1/deliveries/{deliveryId}/files/{fileId}/log/download")
+    @ApiOperation(value = "Download file")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "File downloaded"),
+            @ApiResponse(code = 500, message = "Error Server", response = BasicResponseDto.class)})
+    @ResponseBody
+    public ResponseEntity<?> downloadLog(
+            @PathVariable Long deliveryId,
+            @PathVariable Long fileId,
+            @RequestHeader("authorization") String headerAuthorization) {
+
+        MediaType mediaType;
+        File file;
+        InputStreamResource resource;
+
+        try {
+
+            InformationSession session = this.getInformationSession(headerAuthorization);
+
+            if (session.isManager() && !session.isSinic()) {
+                throw new InputValidationException("El usuario no tiene permisos para descargar logs de la entrega.");
+            }
+
+            validateDeliveryId(deliveryId);
+            validateFileId(fileId);
+
+            String pathFile = fileLogURLGetter.handle(new FileLogURLGetterQuery(
+                    deliveryId, fileId, session.entityCode())).value();
+
+            Path path = Paths.get(pathFile);
+            String fileName = path.getFileName().toString();
+
+            String mineType = servletContext.getMimeType(fileName);
+
+            try {
+                mediaType = MediaType.parseMediaType(mineType);
+            } catch (Exception e) {
+                mediaType = MediaType.APPLICATION_OCTET_STREAM;
+            }
+
+            file = new File(pathFile);
+            resource = new InputStreamResource(new FileInputStream(file));
+
+        } catch (DomainError e) {
+            log.error("Error FileGetController@downloadLog#Domain ---> " + e.getMessage());
+            return new ResponseEntity<>(new BasicResponseDto(e.errorMessage(), 2), HttpStatus.UNPROCESSABLE_ENTITY);
+        } catch (Exception e) {
+            log.error("Error FileGetController@downloadLog#General ---> " + e.getMessage());
+            return new ResponseEntity<>(new BasicResponseDto(e.getMessage(), 1), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        return this.responseFile(file, mediaType, resource);
+    }
 
     private void validateDeliveryId(Long deliveryId) throws InputValidationException {
         if (deliveryId == null || deliveryId <= 0) {

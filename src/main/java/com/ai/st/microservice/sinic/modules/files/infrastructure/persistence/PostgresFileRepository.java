@@ -69,6 +69,22 @@ public final class PostgresFileRepository implements FileRepository {
         fileJPARepository.save(fileEntity);
     }
 
+    @Override
+    public File search(FileId fileId) {
+
+        FileEntity fileEntity = fileJPARepository.findById(fileId.value()).orElse(null);
+        if (fileEntity != null) {
+            return mapping(fileEntity);
+        }
+
+        return null;
+    }
+
+    @Override
+    public void remove(FileId fileId) {
+        fileJPARepository.deleteById(fileId.value());
+    }
+
     private FileStatusEnum mappingEnum(FileStatus status) {
         switch (status.value()) {
             case SUCCESSFUL:

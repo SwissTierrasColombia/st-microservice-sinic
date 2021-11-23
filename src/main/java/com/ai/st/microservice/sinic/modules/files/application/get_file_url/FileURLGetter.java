@@ -1,49 +1,44 @@
-package com.ai.st.microservice.sinic.modules.files.application.remove_file;
+package com.ai.st.microservice.sinic.modules.files.application.get_file_url;
 
 import com.ai.st.microservice.sinic.modules.deliveries.domain.Delivery;
 import com.ai.st.microservice.sinic.modules.deliveries.domain.DeliveryId;
 import com.ai.st.microservice.sinic.modules.deliveries.domain.contracts.DeliveryRepository;
 import com.ai.st.microservice.sinic.modules.deliveries.domain.exceptions.DeliveryNotFound;
-import com.ai.st.microservice.sinic.modules.deliveries.domain.exceptions.UnauthorizedToModifyDelivery;
 import com.ai.st.microservice.sinic.modules.deliveries.domain.exceptions.UnauthorizedToSearchDelivery;
 import com.ai.st.microservice.sinic.modules.files.domain.File;
 import com.ai.st.microservice.sinic.modules.files.domain.FileId;
 import com.ai.st.microservice.sinic.modules.files.domain.FileRepository;
 import com.ai.st.microservice.sinic.modules.files.domain.exceptions.FileDoesNotBelongToDelivery;
 import com.ai.st.microservice.sinic.modules.files.domain.exceptions.FileNotFound;
-import com.ai.st.microservice.sinic.modules.shared.application.CommandUseCase;
+import com.ai.st.microservice.sinic.modules.shared.application.QueryUseCase;
+import com.ai.st.microservice.sinic.modules.shared.application.Roles;
+import com.ai.st.microservice.sinic.modules.shared.application.StringResponse;
 import com.ai.st.microservice.sinic.modules.shared.domain.ManagerCode;
 import com.ai.st.microservice.sinic.modules.shared.domain.Service;
-import com.ai.st.microservice.sinic.modules.shared.domain.contracts.StoreFile;
 
 @Service
-public final class FileRemover implements CommandUseCase<FileRemoverCommand> {
+public final class FileURLGetter implements QueryUseCase<FileURLGetterQuery, StringResponse> {
 
     private final DeliveryRepository deliveryRepository;
     private final FileRepository fileRepository;
-    private final StoreFile storeFile;
 
-    public FileRemover(DeliveryRepository deliveryRepository, FileRepository fileRepository, StoreFile storeFile) {
+    public FileURLGetter(DeliveryRepository deliveryRepository, FileRepository fileRepository) {
         this.deliveryRepository = deliveryRepository;
         this.fileRepository = fileRepository;
-        this.storeFile = storeFile;
     }
 
     @Override
-    public void handle(FileRemoverCommand command) {
+    public StringResponse handle(FileURLGetterQuery query) {
 
-        DeliveryId deliveryId = DeliveryId.fromValue(command.deliveryId());
-        FileId fileId = FileId.fromValue(command.fileId());
-        ManagerCode managerCode = ManagerCode.fromValue(command.managerCode());
+        DeliveryId deliveryId = new DeliveryId(query.deliveryId());
+        FileId fileId = new FileId(query.fileId());
 
-        File file = verifyPermissions(deliveryId, fileId, managerCode);
+        File file = verifyPermissions(deliveryId, fileId, query.role(), query.managerCode());
 
-        fileRepository.remove(fileId);
-
-        deleteStorage(file);
+        return new StringResponse(file.url().value());
     }
 
-    private File verifyPermissions(DeliveryId deliveryId, FileId fileId, ManagerCode managerCode) {
+    private File verifyPermissions(DeliveryId deliveryId, FileId fileId, Roles role, Long managerCode) {
 
         // verify delivery exists
         Delivery delivery = deliveryRepository.search(deliveryId);
@@ -51,19 +46,16 @@ public final class FileRemover implements CommandUseCase<FileRemoverCommand> {
             throw new DeliveryNotFound(deliveryId.value());
         }
 
+        if (role.equals(Roles.MANAGER)) {
+            // verify status of the delivery
+            if (!delivery.deliveryBelongToManager(ManagerCode.fromValue(managerCode)) || !delivery.isAvailableToManager()) {
+                throw new UnauthorizedToSearchDelivery();
+            }
+        }
+
         File file = fileRepository.search(fileId);
         if (file == null) {
             throw new FileNotFound(fileId.value());
-        }
-
-        // verify owner of the delivery
-        if (!delivery.deliveryBelongToManager(managerCode)) {
-            throw new UnauthorizedToSearchDelivery();
-        }
-
-        // verify status of the delivery
-        if (!delivery.isDraft()) {
-            throw new UnauthorizedToModifyDelivery("No se puede eliminar el archivo, porque la entrega no es un borrador.");
         }
 
         // verify attachment belong to delivery product
@@ -72,15 +64,6 @@ public final class FileRemover implements CommandUseCase<FileRemoverCommand> {
         }
 
         return file;
-    }
-
-    private void deleteStorage(File file) {
-
-        String pathFile = file.url().value();
-        String pathLog = file.log().value();
-
-        storeFile.deleteFile(pathFile);
-        storeFile.deleteFile(pathLog);
     }
 
 }
