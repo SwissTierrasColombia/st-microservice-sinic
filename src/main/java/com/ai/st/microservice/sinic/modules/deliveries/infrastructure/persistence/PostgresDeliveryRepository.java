@@ -148,6 +148,20 @@ public final class PostgresDeliveryRepository implements DeliveryRepository {
         }
     }
 
+    @Override
+    public void changeStatus(DeliveryId deliveryId, DeliveryStatus status) {
+
+        DeliveryEntity deliveryEntity = deliveryJPARepository.findById(deliveryId.value()).orElse(null);
+        if (deliveryEntity != null) {
+
+            deliveryEntity.setStatus(mappingEnum(status));
+            deliveryEntity.setDateStatusAt(new Date());
+
+            deliveryJPARepository.save(deliveryEntity);
+        }
+
+    }
+
     private Specification<DeliveryEntity> addFilters(List<Filter> filters) {
         Specification<DeliveryEntity> specification = where(createSpecification(filters.remove(0)));
         for (Filter filter : filters) {

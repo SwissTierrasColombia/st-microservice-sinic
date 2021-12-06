@@ -29,6 +29,12 @@ public final class PostgresFileRepository implements FileRepository {
     }
 
     @Override
+    public File findBy(FileUUID fileUUID) {
+        FileEntity fileEntity = fileJPARepository.findByUuid(fileUUID.value());
+        return mapping(fileEntity);
+    }
+
+    @Override
     public void save(File file) {
 
         DeliveryEntity deliveryEntity = new DeliveryEntity();
@@ -61,7 +67,9 @@ public final class PostgresFileRepository implements FileRepository {
         if (status.value().equals(FileStatus.Status.SUCCESSFUL)) {
             fileEntity.setValid(true);
             fileEntity.setLog(null);
-        } else if (status.value().equals(FileStatus.Status.UNSUCCESSFUL)) {
+        }
+
+        if (status.value().equals(FileStatus.Status.UNSUCCESSFUL)) {
             fileEntity.setValid(false);
             fileEntity.setLog(log.value());
         }
@@ -91,6 +99,12 @@ public final class PostgresFileRepository implements FileRepository {
                 return FileStatusEnum.SUCCESSFUL;
             case UNSUCCESSFUL:
                 return FileStatusEnum.UNSUCCESSFUL;
+            case IMPORTING:
+                return FileStatusEnum.IMPORTING;
+            case IMPORT_SUCCESSFUL:
+                return FileStatusEnum.IMPORT_SUCCESSFUL;
+            case IMPORT_UNSUCCESSFUL:
+                return FileStatusEnum.IMPORT_UNSUCCESSFUL;
             case IN_VALIDATION:
             default:
                 return FileStatusEnum.IN_VALIDATION;

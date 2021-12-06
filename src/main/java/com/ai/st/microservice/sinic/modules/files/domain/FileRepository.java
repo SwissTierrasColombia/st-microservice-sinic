@@ -8,6 +8,8 @@ public interface FileRepository {
 
     List<File> findByDeliveryId(DeliveryId deliveryId);
 
+    File findBy(FileUUID fileUUID);
+
     void save(File file);
 
     void updateFileStatus(FileUUID uuid, FileStatus status, FileLog log);

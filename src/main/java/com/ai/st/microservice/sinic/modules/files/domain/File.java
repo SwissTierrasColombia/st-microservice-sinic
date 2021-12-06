@@ -78,6 +78,22 @@ public final class File extends AggregateRoot {
         return log != null && log.value() != null;
     }
 
+    public boolean allowToSendDelivery() {
+        return status.value().equals(FileStatus.Status.SUCCESSFUL);
+    }
+
+    public boolean importing() {
+        return status.value().equals(FileStatus.Status.IMPORTING);
+    }
+
+    public boolean importSuccessful() {
+        return status.value().equals(FileStatus.Status.IMPORT_SUCCESSFUL);
+    }
+
+    public boolean importUnSuccessful() {
+        return status.value().equals(FileStatus.Status.IMPORT_UNSUCCESSFUL);
+    }
+
     public FileId id() {
         return id;
     }

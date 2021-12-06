@@ -9,7 +9,10 @@ public final class FileStatus {
     public enum Status {
         IN_VALIDATION,
         SUCCESSFUL,
-        UNSUCCESSFUL
+        UNSUCCESSFUL,
+        IMPORTING,
+        IMPORT_SUCCESSFUL,
+        IMPORT_UNSUCCESSFUL
     }
 
     public FileStatus(Status value) {
@@ -25,6 +28,12 @@ public final class FileStatus {
                 return new FileStatus(Status.SUCCESSFUL);
             case "UNSUCCESSFUL":
                 return new FileStatus(Status.UNSUCCESSFUL);
+            case "IMPORTING":
+                return new FileStatus(Status.IMPORTING);
+            case "IMPORT_SUCCESSFUL":
+                return new FileStatus(Status.IMPORT_SUCCESSFUL);
+            case "IMPORT_UNSUCCESSFUL":
+                return new FileStatus(Status.IMPORT_UNSUCCESSFUL);
             default:
                 throw new FileStatusInvalid(value);
         }
@@ -36,6 +45,18 @@ public final class FileStatus {
 
     public Status value() {
         return value;
+    }
+
+    public boolean importing() {
+        return this.value.equals(Status.IMPORTING);
+    }
+
+    public boolean importSuccessful() {
+        return this.value.equals(Status.IMPORT_SUCCESSFUL);
+    }
+
+    public boolean importUnsuccessful() {
+        return this.value.equals(Status.IMPORT_UNSUCCESSFUL);
     }
 
 }
