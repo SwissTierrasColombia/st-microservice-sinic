@@ -87,7 +87,7 @@ public final class DeliveryToCadastralAuthoritySender implements CommandUseCase<
     private void sendFilesToQueue(DeliveryId deliveryId, List<File> files) {
 
         Delivery delivery = deliveryRepository.search(deliveryId);
-        String schemaName = "test_" + delivery.locality().code().value();
+        String schemaName = String.format("sinic_%s_%s", delivery.code().value(), delivery.locality().code().value());
 
         databaseManager.createSchema(schemaName);
         int index = 1;

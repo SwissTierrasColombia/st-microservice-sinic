@@ -37,7 +37,7 @@ public final class RabbitMQService implements MessageBroker {
     @Value("${sinic.database.database}")
     private String databaseName;
 
-    private static final String MODEL_VERSION = "1.0";
+    private static final String MODEL_VERSION = "0.1";
     private static final Long CONCEPT_ID = (long) 4;
 
     @Override

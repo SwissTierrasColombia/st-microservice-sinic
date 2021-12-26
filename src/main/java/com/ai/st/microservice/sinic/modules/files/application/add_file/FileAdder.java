@@ -46,7 +46,7 @@ public final class FileAdder implements CommandUseCase<FileAdderCommand> {
         UserCode userCode = UserCode.fromValue(command.userCode());
         FileObservations observations = FileObservations.fromValue(command.observations());
 
-        FileVersion version = new FileVersion("1.0");
+        FileVersion version = new FileVersion("0.1");
         FileUUID uuid = new FileUUID(UUID.randomUUID().toString());
 
         verifyPermissions(deliveryId, managerCode);
