@@ -3,6 +3,7 @@ package com.ai.st.microservice.sinic.modules.shared.infrastructure.microservices
 import com.ai.st.microservice.common.clients.IliFeignClient;
 import com.ai.st.microservice.common.dto.ili.MicroserviceIlivalidatorBackgroundDto;
 import com.ai.st.microservice.sinic.modules.files.domain.FileUUID;
+import com.ai.st.microservice.sinic.modules.shared.domain.UserCode;
 import com.ai.st.microservice.sinic.modules.shared.domain.contracts.ILIMicroservice;
 import com.ai.st.microservice.sinic.modules.shared.domain.exceptions.MicroserviceUnreachable;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public final class HTTPILIMicroservice implements ILIMicroservice {
     }
 
     @Override
-    public void sendToValidation(FileUUID fileUUID, String pathFile, boolean skipGeometryValidation, boolean skipErrors) {
+    public void sendToValidation(FileUUID fileUUID, UserCode userCode, String pathFile, boolean skipGeometryValidation, boolean skipErrors) {
 
         try {
 
@@ -33,6 +34,7 @@ public final class HTTPILIMicroservice implements ILIMicroservice {
             request.setSkipErrors(skipErrors);
             request.setReferenceId(fileUUID.value());
             request.setSkipGeometryValidation(skipGeometryValidation);
+            request.setUserCode(userCode.value());
 
             iliFeignClient.startValidation(request);
 

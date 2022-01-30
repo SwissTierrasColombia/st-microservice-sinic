@@ -12,7 +12,12 @@ spring:
         enable_lazy_load_no_trans: true
   main:
     allow-bean-definition-overriding: true
-
+  thymeleaf:
+    prefix: classpath:/templates
+    cache: false
+    content-type: text/html
+    mode: HTML
+    suffix: .html
 
 eureka:
   client:
@@ -22,3 +27,5 @@ eureka:
 
 server:
   port: 8241
+
+

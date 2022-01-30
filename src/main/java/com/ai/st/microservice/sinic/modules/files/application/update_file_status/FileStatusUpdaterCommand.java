@@ -15,11 +15,13 @@ public final class FileStatusUpdaterCommand implements Command {
     private final Status status;
     private final String fileUUID;
     private final String log;
+    private final Long userCode;
 
-    public FileStatusUpdaterCommand(Status status, String fileUUID, String log) {
+    public FileStatusUpdaterCommand(Status status, String fileUUID, String log, Long userCode) {
         this.status = status;
         this.fileUUID = fileUUID;
         this.log = log;
+        this.userCode = userCode;
     }
 
     public Status status() {
@@ -32,5 +34,9 @@ public final class FileStatusUpdaterCommand implements Command {
 
     public String log() {
         return log;
+    }
+
+    public Long userCode() {
+        return userCode;
     }
 }

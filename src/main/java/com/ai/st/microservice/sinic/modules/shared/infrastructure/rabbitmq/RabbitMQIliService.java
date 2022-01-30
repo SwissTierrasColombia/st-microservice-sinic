@@ -4,14 +4,14 @@ import com.ai.st.microservice.common.dto.ili.MicroserviceIli2pgImportSinicDto;
 import com.ai.st.microservice.common.dto.ili.MicroserviceIliProcessQueueDto;
 import com.ai.st.microservice.sinic.modules.files.domain.FileUUID;
 import com.ai.st.microservice.sinic.modules.files.domain.FileUrl;
-import com.ai.st.microservice.sinic.modules.shared.domain.contracts.MessageBroker;
+import com.ai.st.microservice.sinic.modules.shared.domain.contracts.IliMessageBroker;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public final class RabbitMQService implements MessageBroker {
+public final class RabbitMQIliService implements IliMessageBroker {
 
     @Autowired
     private AmqpTemplate rabbitTemplate;

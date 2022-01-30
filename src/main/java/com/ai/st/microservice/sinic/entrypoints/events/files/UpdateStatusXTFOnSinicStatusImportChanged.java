@@ -34,7 +34,7 @@ public final class UpdateStatusXTFOnSinicStatusImportChanged {
 
                 FileStatusUpdaterCommand.Status status = mappingEnum(resultImportData.getResult());
 
-                fileStatusUpdater.handle(new FileStatusUpdaterCommand(status, fileId, null));
+                fileStatusUpdater.handle(new FileStatusUpdaterCommand(status, fileId, null, null));
             }
 
         } catch (Exception e) {

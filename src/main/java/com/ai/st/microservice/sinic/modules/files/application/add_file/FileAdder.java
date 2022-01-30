@@ -98,7 +98,7 @@ public final class FileAdder implements CommandUseCase<FileAdderCommand> {
         String namespace = buildNamespace(deliveryId);
         String pathUrl = storeFile.storeFilePermanently(command.bytes(), command.extension(), namespace);
 
-        iliMicroservice.sendToValidation(uuid, pathUrl, false, false);
+        iliMicroservice.sendToValidation(uuid, UserCode.fromValue(command.userCode()), pathUrl, false, false);
 
         return pathUrl;
     }

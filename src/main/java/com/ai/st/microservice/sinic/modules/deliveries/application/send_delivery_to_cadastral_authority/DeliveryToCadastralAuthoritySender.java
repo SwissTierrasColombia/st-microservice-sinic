@@ -14,7 +14,7 @@ import com.ai.st.microservice.sinic.modules.shared.application.CommandUseCase;
 import com.ai.st.microservice.sinic.modules.shared.domain.ManagerCode;
 import com.ai.st.microservice.sinic.modules.shared.domain.Service;
 import com.ai.st.microservice.sinic.modules.shared.domain.contracts.IDatabaseManager;
-import com.ai.st.microservice.sinic.modules.shared.domain.contracts.MessageBroker;
+import com.ai.st.microservice.sinic.modules.shared.domain.contracts.IliMessageBroker;
 
 import java.util.List;
 
@@ -24,9 +24,9 @@ public final class DeliveryToCadastralAuthoritySender implements CommandUseCase<
     private final DeliveryRepository deliveryRepository;
     private final FileRepository fileRepository;
     private final IDatabaseManager databaseManager;
-    private final MessageBroker messageBroker;
+    private final IliMessageBroker messageBroker;
 
-    public DeliveryToCadastralAuthoritySender(DeliveryRepository deliveryRepository, FileRepository fileRepository, IDatabaseManager databaseManager, MessageBroker messageBroker) {
+    public DeliveryToCadastralAuthoritySender(DeliveryRepository deliveryRepository, FileRepository fileRepository, IDatabaseManager databaseManager, IliMessageBroker messageBroker) {
         this.deliveryRepository = deliveryRepository;
         this.fileRepository = fileRepository;
         this.databaseManager = databaseManager;

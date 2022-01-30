@@ -4,7 +4,6 @@ import com.ai.st.microservice.common.dto.ili.MicroserviceValidationDto;
 import com.ai.st.microservice.sinic.modules.files.application.update_file_status.FileStatusUpdater;
 import com.ai.st.microservice.sinic.modules.files.application.update_file_status.FileStatusUpdaterCommand;
 import com.ai.st.microservice.sinic.modules.shared.domain.contracts.CompressorFile;
-import com.ai.st.microservice.sinic.modules.shared.domain.exceptions.CompressError;
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +53,7 @@ public final class UpdateStateXTFOnValidationDone {
                 FileStatusUpdaterCommand.Status status = (validationDto.getIsValid())
                         ? FileStatusUpdaterCommand.Status.SUCCESSFUL : FileStatusUpdaterCommand.Status.UNSUCCESSFUL;
 
-                fileStatusUpdater.handle(new FileStatusUpdaterCommand(status, validationDto.getReferenceId(), logPath));
+                fileStatusUpdater.handle(new FileStatusUpdaterCommand(status, validationDto.getReferenceId(), logPath, validationDto.getUserCode()));
             }
 
         } catch (Exception e) {
