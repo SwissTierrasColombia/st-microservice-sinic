@@ -134,8 +134,8 @@ public final class FileStatusUpdater implements CommandUseCase<FileStatusUpdater
 
         deliveryStatusNotifier.handle(new DeliveryStatusNotifierCommand(
                 status,
-                department,
                 municipality,
+                department,
                 delivery.manager().code().value()
         ));
 
