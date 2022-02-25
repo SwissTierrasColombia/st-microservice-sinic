@@ -101,9 +101,6 @@ public final class DeliveryPatchController extends ApiController {
 
         try {
 
-            // wrong --> Qk0UsWv9Vrz50nDLrJYTpyXXIVePkAqwbQACegyuw6k=
-            // right --> Kug1n5dd/Tccg0gf39CqkuX6aPbu37BvvbIq9bZZgs0=
-
             String token = crypto.decrypt(stPublicTokenEncrypted);
             if (!matchTokenIGAC(token)) {
                 throw new InputValidationException("El usuario no tiene permisos para actualizar el estado de la entrega.");
