@@ -10,7 +10,7 @@ ENV CLOUD_CONFIG=$CLOUD_CONFIG
 
 VOLUME /tmp
 
-ADD ./target/st-microservice-sinic-1.1.1.jar st-microservice-sinic.jar
+ADD ./target/st-microservice-sinic-1.1.5.jar st-microservice-sinic.jar
 
 EXPOSE 8080
 
