@@ -18,10 +18,11 @@ public final class Delivery extends AggregateRoot {
     private final DeliveryObservations observations;
     private final DeliveryStatus status;
     private final UserCode user;
+    private final DeliveryType type;
 
     public Delivery(DeliveryId id, DeliveryCode code, DeliveryDate date, DeliveryDateStatus dateStatus,
                     DeliveryManager manager, DeliveryLocality locality, DeliveryObservations observations,
-                    DeliveryStatus status, UserCode user) {
+                    DeliveryStatus status, UserCode user, DeliveryType type) {
         this.id = id;
         this.code = code;
         this.date = date;
@@ -31,10 +32,12 @@ public final class Delivery extends AggregateRoot {
         this.observations = observations;
         this.status = status;
         this.user = user;
+        this.type = type;
     }
 
     public static Delivery create(DeliveryId deliveryId, DeliveryCode code, DeliveryDate date, DeliveryDateStatus dateStatus,
-                                  DeliveryManager manager, DeliveryLocality locality, DeliveryObservations observations, UserCode user) {
+                                  DeliveryManager manager, DeliveryLocality locality, DeliveryObservations observations, UserCode user,
+                                  DeliveryType type) {
         return new Delivery(
                 deliveryId,
                 code,
@@ -44,12 +47,12 @@ public final class Delivery extends AggregateRoot {
                 locality,
                 observations,
                 new DeliveryStatus(DeliveryStatus.Status.DRAFT),
-                user
-        );
+                user,
+                type);
     }
 
     public static Delivery create(DeliveryCode code, DeliveryManager manager, DeliveryLocality locality,
-                                  DeliveryObservations observations, UserCode user, DateTime dateTime) {
+                                  DeliveryObservations observations, UserCode user, DateTime dateTime, DeliveryType type) {
         return new Delivery(
                 null,
                 code,
@@ -59,13 +62,13 @@ public final class Delivery extends AggregateRoot {
                 locality,
                 observations,
                 new DeliveryStatus(DeliveryStatus.Status.DRAFT),
-                user
-        );
+                user,
+                type);
     }
 
     public static Delivery fromPrimitives(Long id, String code, Date date, Date dateStatus, Long managerCode, String managerName,
                                           String departmentName, String municipalityName, String municipalityCode,
-                                          String observations, String status, Long userCode) {
+                                          String observations, String status, Long userCode, String type) {
 
 
         DeliveryManager deliveryManager = DeliveryManager.builder()
@@ -86,8 +89,8 @@ public final class Delivery extends AggregateRoot {
                 deliveryLocality,
                 DeliveryObservations.fromValue(observations),
                 DeliveryStatus.fromValue(status),
-                UserCode.fromValue(userCode)
-        );
+                UserCode.fromValue(userCode),
+                DeliveryType.fromValue(type));
     }
 
     public boolean deliveryBelongToManager(ManagerCode managerCode) {
@@ -133,6 +136,10 @@ public final class Delivery extends AggregateRoot {
         return status.value().equals(DeliveryStatus.Status.DRAFT);
     }
 
+    public boolean isFlat() {
+        return type.value().equals(DeliveryType.Type.FLAT);
+    }
+
     public DeliveryId id() {
         return id;
     }
@@ -169,4 +176,7 @@ public final class Delivery extends AggregateRoot {
         return user;
     }
 
+    public DeliveryType type() {
+        return type;
+    }
 }

@@ -13,7 +13,7 @@
 
     <groupId>com.ai.st.microservice.sinic</groupId>
     <artifactId>st-microservice-sinic</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
     <name>st-microservice-sinic</name>
     <description>SINIC</description>
 
@@ -87,7 +87,7 @@
         <dependency>
             <groupId>com.ai.st.microservice.common</groupId>
             <artifactId>st-common</artifactId>
-            <version>1.1.3</version>
+            <version>1.1.4</version>
         </dependency>
 
         <dependency>
@@ -114,6 +114,10 @@
             <version>2.5.9</version>
         </dependency>
 
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
 
     </dependencies>
 

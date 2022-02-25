@@ -61,7 +61,8 @@ public final class DeliveryPostController extends ApiController {
                             municipalityCode,
                             session.entityCode(),
                             session.userCode(),
-                            observations));
+                            observations,
+                            CreateDeliveryCommand.DeliveryType.valueOf(request.getType())));
 
             httpStatus = HttpStatus.CREATED;
 
@@ -105,6 +106,9 @@ final class CreateDeliveryRequest {
     @ApiModelProperty(required = true, notes = "Observations")
     private String observations;
 
+    @ApiModelProperty(required = true, notes = "Observations")
+    private String type;
+
     public String getMunicipalityCode() {
         return municipalityCode;
     }
@@ -121,4 +125,11 @@ final class CreateDeliveryRequest {
         this.observations = observations;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 }

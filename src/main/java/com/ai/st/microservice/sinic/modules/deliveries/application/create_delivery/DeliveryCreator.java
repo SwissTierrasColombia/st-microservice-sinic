@@ -41,7 +41,8 @@ public final class DeliveryCreator implements CommandUseCase<CreateDeliveryComma
                 defineLocality(municipalityCode),
                 DeliveryObservations.fromValue(command.observations()),
                 userCode,
-                dateTime
+                dateTime,
+                DeliveryType.fromValue(command.type().name())
         );
 
         deliveryRepository.save(delivery);

@@ -15,8 +15,10 @@ public final class DeliveryResponse implements Response {
     private final Manager manager;
     private final String observations;
     private final String status;
+    private final String type;
 
-    public DeliveryResponse(Long id, String code, Date date, Date dateStatus, Locality locality, Manager manager, String observations, String status) {
+    public DeliveryResponse(Long id, String code, Date date, Date dateStatus, Locality locality, Manager manager,
+                            String observations, String status, String type) {
         this.id = id;
         this.code = code;
         this.date = date;
@@ -25,6 +27,7 @@ public final class DeliveryResponse implements Response {
         this.manager = manager;
         this.observations = observations;
         this.status = status;
+        this.type = type;
     }
 
     public static DeliveryResponse fromAggregate(Delivery delivery) {
@@ -36,8 +39,8 @@ public final class DeliveryResponse implements Response {
                 new Locality(delivery.locality().department().value(), delivery.locality().municipality().value(), delivery.locality().code().value()),
                 new Manager(delivery.manager().name().value(), delivery.manager().code().value()),
                 delivery.observations().value(),
-                delivery.status().value().name()
-        );
+                delivery.status().value().name(),
+                delivery.type().value().name());
     }
 
     public Long id() {
@@ -70,6 +73,10 @@ public final class DeliveryResponse implements Response {
 
     public String status() {
         return status;
+    }
+
+    public String type() {
+        return type;
     }
 
     private static class Locality {

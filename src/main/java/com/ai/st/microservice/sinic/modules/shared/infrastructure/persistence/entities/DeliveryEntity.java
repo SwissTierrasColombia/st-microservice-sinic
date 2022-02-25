@@ -42,6 +42,10 @@ public final class DeliveryEntity {
     @Enumerated(value = EnumType.STRING)
     private DeliveryStatusEnum status;
 
+    @Column(name = "type", nullable = false, length = 100)
+    @Enumerated(value = EnumType.STRING)
+    private DeliveryTypeEnum type;
+
     @Column(name = "created_at", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
@@ -155,5 +159,13 @@ public final class DeliveryEntity {
 
     public void setFiles(List<FileEntity> files) {
         this.files = files;
+    }
+
+    public DeliveryTypeEnum getType() {
+        return type;
+    }
+
+    public void setType(DeliveryTypeEnum type) {
+        this.type = type;
     }
 }

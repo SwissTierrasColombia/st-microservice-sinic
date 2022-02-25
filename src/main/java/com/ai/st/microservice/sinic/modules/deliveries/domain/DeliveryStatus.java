@@ -47,4 +47,24 @@ public final class DeliveryStatus {
         return value;
     }
 
+    public boolean isPossibleToChangeStatusToSendCadastralAuthority() {
+        return value == Status.DRAFT;
+    }
+
+    public boolean isPossibleToChangeStatusToInQueueToImport() {
+        return value == Status.SENT_CADASTRAL_AUTHORITY;
+    }
+
+    public boolean isPossibleToChangeStatusToImporting() {
+        return value == Status.IN_QUEUE_TO_IMPORT || value == Status.SENT_CADASTRAL_AUTHORITY;
+    }
+
+    public boolean isPossibleToChangeStatusToSuccessImport() {
+        return value == Status.IMPORTING;
+    }
+
+    public boolean isPossibleToChangeStatusToFailedImport() {
+        return value == Status.IMPORTING;
+    }
+
 }

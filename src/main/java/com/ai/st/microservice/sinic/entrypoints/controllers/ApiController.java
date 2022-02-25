@@ -9,6 +9,7 @@ import com.ai.st.microservice.common.exceptions.DisconnectedMicroserviceExceptio
 import com.ai.st.microservice.sinic.modules.shared.application.Roles;
 import com.ai.st.microservice.sinic.modules.shared.application.SubRoles;
 import com.google.common.io.Files;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -17,6 +18,9 @@ import org.springframework.http.ResponseEntity;
 import java.io.File;
 
 public abstract class ApiController {
+
+    @Value("${crypto.token-igac}")
+    private String tokenIGAC;
 
     protected final AdministrationBusiness administrationBusiness;
     protected final ManagerBusiness managerBusiness;
@@ -113,6 +117,10 @@ public abstract class ApiController {
             return this.role().equals(Roles.CADASTRAL_AUTHORITY);
         }
 
+    }
+
+    public boolean matchTokenIGAC(String token) {
+        return tokenIGAC.equals(token);
     }
 
 }

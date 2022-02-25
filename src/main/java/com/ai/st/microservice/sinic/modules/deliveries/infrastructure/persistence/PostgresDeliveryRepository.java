@@ -3,12 +3,14 @@ package com.ai.st.microservice.sinic.modules.deliveries.infrastructure.persisten
 import com.ai.st.microservice.sinic.modules.deliveries.domain.Delivery;
 import com.ai.st.microservice.sinic.modules.deliveries.domain.DeliveryId;
 import com.ai.st.microservice.sinic.modules.deliveries.domain.DeliveryStatus;
+import com.ai.st.microservice.sinic.modules.deliveries.domain.DeliveryType;
 import com.ai.st.microservice.sinic.modules.deliveries.domain.contracts.DeliveryRepository;
 import com.ai.st.microservice.sinic.modules.deliveries.infrastructure.persistence.jpa.DeliveryJPARepository;
 import com.ai.st.microservice.sinic.modules.shared.domain.PageableDomain;
 import com.ai.st.microservice.sinic.modules.shared.domain.criteria.*;
 import com.ai.st.microservice.sinic.modules.shared.infrastructure.persistence.entities.DeliveryEntity;
 import com.ai.st.microservice.sinic.modules.shared.infrastructure.persistence.entities.DeliveryStatusEnum;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.persistence.entities.DeliveryTypeEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -63,6 +65,7 @@ public final class PostgresDeliveryRepository implements DeliveryRepository {
         deliveryEntity.setObservations(delivery.observations().value());
         deliveryEntity.setStatus(mappingEnum(delivery.status()));
         deliveryEntity.setUserCode(delivery.user().value());
+        deliveryEntity.setType(mappingTypeEnum(delivery.type()));
 
         deliveryJPARepository.save(deliveryEntity);
     }
@@ -82,6 +85,16 @@ public final class PostgresDeliveryRepository implements DeliveryRepository {
             case DRAFT:
             default:
                 return DeliveryStatusEnum.DRAFT;
+        }
+    }
+
+    private DeliveryTypeEnum mappingTypeEnum(DeliveryType type) {
+        switch (type.value()) {
+            case FLAT:
+                return DeliveryTypeEnum.FLAT;
+            case XTF:
+            default:
+                return DeliveryTypeEnum.XTF;
         }
     }
 
@@ -232,7 +245,8 @@ public final class PostgresDeliveryRepository implements DeliveryRepository {
                 deliveryEntity.getMunicipalityCode(),
                 deliveryEntity.getObservations(),
                 deliveryEntity.getStatus().name(),
-                deliveryEntity.getUserCode()
+                deliveryEntity.getUserCode(),
+                deliveryEntity.getType().name()
         );
     }
 

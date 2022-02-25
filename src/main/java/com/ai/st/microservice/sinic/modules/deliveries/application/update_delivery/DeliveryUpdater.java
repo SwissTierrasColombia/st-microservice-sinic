@@ -51,7 +51,8 @@ public final class DeliveryUpdater implements CommandUseCase<DeliveryUpdaterComm
                 delivery.manager(),
                 delivery.locality(),
                 observations,
-                delivery.user()
+                delivery.user(),
+                delivery.type()
         ));
 
     }
