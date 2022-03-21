@@ -27,7 +27,7 @@ public final class FileAdder implements CommandUseCase<FileAdderCommand> {
     private final StoreFile storeFile;
     private final ILIMicroservice iliMicroservice;
 
-    private final static int MAXIMUM_FILES_PER_DELIVERY = 5;
+    private final static int MAXIMUM_FILES_PER_DELIVERY = 15;
 
     public FileAdder(DeliveryRepository deliveryRepository, FileRepository fileRepository, DateTime dateTime, StoreFile storeFile,
                      ILIMicroservice iliMicroservice) {
