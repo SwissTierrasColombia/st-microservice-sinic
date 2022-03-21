@@ -13,7 +13,7 @@
 
     <groupId>com.ai.st.microservice.sinic</groupId>
     <artifactId>st-microservice-sinic</artifactId>
-    <version>1.1.5</version>
+    <version>1.1.6</version>
     <name>st-microservice-sinic</name>
     <description>SINIC</description>
 
