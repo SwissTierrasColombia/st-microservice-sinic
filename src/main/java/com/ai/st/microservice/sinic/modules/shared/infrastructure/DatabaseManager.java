@@ -3,6 +3,7 @@ package com.ai.st.microservice.sinic.modules.shared.infrastructure;
 import com.ai.st.microservice.sinic.modules.shared.domain.Service;
 import com.ai.st.microservice.sinic.modules.shared.domain.contracts.IDatabaseManager;
 import com.ai.st.microservice.sinic.modules.shared.domain.exceptions.ErrorFromInfrastructure;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.SCMTracing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,7 +47,9 @@ public final class DatabaseManager implements IDatabaseManager {
             stmt1.execute();
 
         } catch (SQLException e) {
-            log.error(String.format("Error creando esquema %s : %s", schema, e.getMessage()));
+            String messageError = String.format("Error creando esquema %s : %s", schema, e.getMessage());
+            SCMTracing.sendError(messageError);
+            log.error(messageError);
             throw new ErrorFromInfrastructure(
                     "No se ha podido crear el esquema para realizar la importación de archivos XTF");
         }
