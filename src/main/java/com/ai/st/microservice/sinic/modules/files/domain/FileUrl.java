@@ -16,7 +16,8 @@ public final class FileUrl {
     }
 
     private void ensureUrl(String value) {
-        if (value == null || value.isEmpty()) throw new FileUrlInvalid(value);
+        if (value == null || value.isEmpty())
+            throw new FileUrlInvalid(value);
     }
 
 }

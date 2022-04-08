@@ -5,11 +5,7 @@ import com.ai.st.microservice.sinic.modules.shared.application.Command;
 public final class FileStatusUpdaterCommand implements Command {
 
     public enum Status {
-        SUCCESSFUL,
-        UNSUCCESSFUL,
-        IMPORTING,
-        IMPORT_SUCCESSFUL,
-        IMPORT_UNSUCCESSFUL
+        SUCCESSFUL, UNSUCCESSFUL, IMPORTING, IMPORT_SUCCESSFUL, IMPORT_UNSUCCESSFUL
     }
 
     private final Status status;

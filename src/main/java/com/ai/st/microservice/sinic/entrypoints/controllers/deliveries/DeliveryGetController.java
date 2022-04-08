@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Api(value = "Manage Deliveries", tags = {"Deliveries"})
+@Api(value = "Manage Deliveries", tags = { "Deliveries" })
 @RestController
 public final class DeliveryGetController extends ApiController {
 
@@ -34,7 +34,8 @@ public final class DeliveryGetController extends ApiController {
     private final DeliveriesFinder deliveriesFinder;
     private final DeliverySearcher deliverySearcher;
 
-    public DeliveryGetController(AdministrationBusiness administrationBusiness, ManagerBusiness managerBusiness, DeliveriesFinder deliveriesFinder, DeliverySearcher deliverySearcher) {
+    public DeliveryGetController(AdministrationBusiness administrationBusiness, ManagerBusiness managerBusiness,
+            DeliveriesFinder deliveriesFinder, DeliverySearcher deliverySearcher) {
         super(administrationBusiness, managerBusiness);
         this.deliveriesFinder = deliveriesFinder;
         this.deliverySearcher = deliverySearcher;
@@ -42,12 +43,10 @@ public final class DeliveryGetController extends ApiController {
 
     @GetMapping(value = "api/sinic/v1/deliveries", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get deliveries")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Deliveries got", response = PageableResponse.class),
-            @ApiResponse(code = 500, message = "Error Server", response = BasicResponseDto.class)})
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Deliveries got", response = PageableResponse.class),
+            @ApiResponse(code = 500, message = "Error Server", response = BasicResponseDto.class) })
     @ResponseBody
-    public ResponseEntity<?> findDeliveries(
-            @RequestParam(name = "page") int page,
+    public ResponseEntity<?> findDeliveries(@RequestParam(name = "page") int page,
             @RequestParam(name = "limit") int limit,
             @RequestParam(name = "states", required = false) List<String> states,
             @RequestParam(name = "code", required = false) String code,
@@ -66,17 +65,8 @@ public final class DeliveryGetController extends ApiController {
                 throw new InputValidationException("El usuario no tiene permisos para consultar entregas.");
             }
 
-            responseDto = deliveriesFinder.handle(
-                    new DeliveriesFinderQuery(
-                            page,
-                            limit,
-                            states,
-                            code,
-                            municipality,
-                            manager,
-                            session.role(),
-                            session.entityCode(),
-                            session.userCode()));
+            responseDto = deliveriesFinder.handle(new DeliveriesFinderQuery(page, limit, states, code, municipality,
+                    manager, session.role(), session.entityCode(), session.userCode()));
 
             httpStatus = HttpStatus.OK;
 
@@ -95,12 +85,10 @@ public final class DeliveryGetController extends ApiController {
 
     @GetMapping(value = "api/sinic/v1/deliveries/{deliveryId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Search delivery")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Delivery got", response = DeliveryResponse.class),
-            @ApiResponse(code = 500, message = "Error Server", response = BasicResponseDto.class)})
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Delivery got", response = DeliveryResponse.class),
+            @ApiResponse(code = 500, message = "Error Server", response = BasicResponseDto.class) })
     @ResponseBody
-    public ResponseEntity<?> searchDelivery(
-            @PathVariable Long deliveryId,
+    public ResponseEntity<?> searchDelivery(@PathVariable Long deliveryId,
             @RequestHeader("authorization") String headerAuthorization) {
 
         HttpStatus httpStatus;
@@ -118,9 +106,8 @@ public final class DeliveryGetController extends ApiController {
                 throw new InputValidationException("El usuario no tiene permisos para consultar entregas.");
             }
 
-            responseDto = deliverySearcher.handle(
-                    new DeliverySearcherQuery(deliveryId, session.role(), session.entityCode())
-            );
+            responseDto = deliverySearcher
+                    .handle(new DeliverySearcherQuery(deliveryId, session.role(), session.entityCode()));
 
             httpStatus = HttpStatus.OK;
 

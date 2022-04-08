@@ -53,7 +53,8 @@ public final class UpdateStateXTFOnValidationDone {
                 FileStatusUpdaterCommand.Status status = (validationDto.getIsValid())
                         ? FileStatusUpdaterCommand.Status.SUCCESSFUL : FileStatusUpdaterCommand.Status.UNSUCCESSFUL;
 
-                fileStatusUpdater.handle(new FileStatusUpdaterCommand(status, validationDto.getReferenceId(), logPath, validationDto.getUserCode()));
+                fileStatusUpdater.handle(new FileStatusUpdaterCommand(status, validationDto.getReferenceId(), logPath,
+                        validationDto.getUserCode()));
             }
 
         } catch (Exception e) {

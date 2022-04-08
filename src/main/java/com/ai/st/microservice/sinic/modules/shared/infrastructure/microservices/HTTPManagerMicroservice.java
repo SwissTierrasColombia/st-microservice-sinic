@@ -40,12 +40,14 @@ public final class HTTPManagerMicroservice implements ManagerMicroservice {
     public AdministrationUser findSinicUser(ManagerCode managerCode) {
 
         Long sinicProfile = (long) 2;
-        List<MicroserviceManagerUserDto> usersByManager = managerFeignClient.findUsersByManager(managerCode.value(), List.of(sinicProfile));
+        List<MicroserviceManagerUserDto> usersByManager = managerFeignClient.findUsersByManager(managerCode.value(),
+                List.of(sinicProfile));
 
         for (MicroserviceManagerUserDto userDto : usersByManager) {
             MicroserviceUserDto userFound = userFeignClient.findById(userDto.getUserCode());
             if (userFound != null && userFound.getEnabled()) {
-                return new AdministrationUser(UserCode.fromValue(userFound.getId()), UserEmail.fromValue(userFound.getEmail()));
+                return new AdministrationUser(UserCode.fromValue(userFound.getId()),
+                        UserEmail.fromValue(userFound.getEmail()));
             }
         }
 

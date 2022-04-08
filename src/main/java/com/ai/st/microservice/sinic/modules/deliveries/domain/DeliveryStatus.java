@@ -7,12 +7,7 @@ public final class DeliveryStatus {
     private final Status value;
 
     public enum Status {
-        DRAFT,
-        SENT_CADASTRAL_AUTHORITY,
-        IN_QUEUE_TO_IMPORT,
-        IMPORTING,
-        SUCCESS_IMPORT,
-        FAILED_IMPORT,
+        DRAFT, SENT_CADASTRAL_AUTHORITY, IN_QUEUE_TO_IMPORT, IMPORTING, SUCCESS_IMPORT, FAILED_IMPORT,
     }
 
     public DeliveryStatus(Status value) {
@@ -22,25 +17,26 @@ public final class DeliveryStatus {
 
     public static DeliveryStatus fromValue(String value) {
         switch (value) {
-            case "DRAFT":
-                return new DeliveryStatus(Status.DRAFT);
-            case "SENT_CADASTRAL_AUTHORITY":
-                return new DeliveryStatus(Status.SENT_CADASTRAL_AUTHORITY);
-            case "IN_QUEUE_TO_IMPORT":
-                return new DeliveryStatus(Status.IN_QUEUE_TO_IMPORT);
-            case "IMPORTING":
-                return new DeliveryStatus(Status.IMPORTING);
-            case "SUCCESS_IMPORT":
-                return new DeliveryStatus(Status.SUCCESS_IMPORT);
-            case "FAILED_IMPORT":
-                return new DeliveryStatus(Status.FAILED_IMPORT);
-            default:
-                throw new DeliveryStatusInvalid(value);
+        case "DRAFT":
+            return new DeliveryStatus(Status.DRAFT);
+        case "SENT_CADASTRAL_AUTHORITY":
+            return new DeliveryStatus(Status.SENT_CADASTRAL_AUTHORITY);
+        case "IN_QUEUE_TO_IMPORT":
+            return new DeliveryStatus(Status.IN_QUEUE_TO_IMPORT);
+        case "IMPORTING":
+            return new DeliveryStatus(Status.IMPORTING);
+        case "SUCCESS_IMPORT":
+            return new DeliveryStatus(Status.SUCCESS_IMPORT);
+        case "FAILED_IMPORT":
+            return new DeliveryStatus(Status.FAILED_IMPORT);
+        default:
+            throw new DeliveryStatusInvalid(value);
         }
     }
 
     private void ensureStatus(Status value) {
-        if (value == null) throw new DeliveryStatusInvalid("N/A");
+        if (value == null)
+            throw new DeliveryStatusInvalid("N/A");
     }
 
     public Status value() {

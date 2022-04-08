@@ -5,6 +5,7 @@ import com.ai.st.microservice.sinic.modules.shared.domain.UserCode;
 
 public interface ILIMicroservice {
 
-    void sendToValidation(FileUUID fileUUID, UserCode userCode, String pathFile, boolean skipGeometryValidation, boolean skipErrors);
+    void sendToValidation(FileUUID fileUUID, UserCode userCode, String pathFile, boolean skipGeometryValidation,
+            boolean skipErrors);
 
 }

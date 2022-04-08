@@ -9,7 +9,8 @@ public final class CompressError extends DomainError {
     }
 
     public CompressError(String errorMessage) {
-        super("compress_file_error", String.format("Ha ocurrido un error en el proceso de compresión de archivos: %s", errorMessage));
+        super("compress_file_error",
+                String.format("Ha ocurrido un error en el proceso de compresión de archivos: %s", errorMessage));
     }
 
 }

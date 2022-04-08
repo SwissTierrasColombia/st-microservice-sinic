@@ -18,7 +18,8 @@ public final class DeliveriesFinderQuery implements Query {
     private final Long entityCode;
     private final Long userCode;
 
-    public DeliveriesFinderQuery(int page, int limit, List<String> states, String code, String municipality, Long manager, Roles role, Long entityCode, Long userCode) {
+    public DeliveriesFinderQuery(int page, int limit, List<String> states, String code, String municipality,
+            Long manager, Roles role, Long entityCode, Long userCode) {
         this.page = page;
         this.limit = limit;
         this.states = (states == null) ? new ArrayList<>() : states;

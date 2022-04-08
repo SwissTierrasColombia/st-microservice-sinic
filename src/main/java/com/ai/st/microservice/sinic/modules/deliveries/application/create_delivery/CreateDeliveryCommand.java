@@ -5,8 +5,7 @@ import com.ai.st.microservice.sinic.modules.shared.application.Command;
 public final class CreateDeliveryCommand implements Command {
 
     public enum DeliveryType {
-        XTF,
-        FLAT
+        XTF, FLAT
     }
 
     private final String municipalityCode;
@@ -15,8 +14,8 @@ public final class CreateDeliveryCommand implements Command {
     private final String observations;
     private final DeliveryType type;
 
-
-    public CreateDeliveryCommand(String municipalityCode, Long managerCode, Long userCode, String observations, DeliveryType type) {
+    public CreateDeliveryCommand(String municipalityCode, Long managerCode, Long userCode, String observations,
+            DeliveryType type) {
         this.municipalityCode = municipalityCode;
         this.managerCode = managerCode;
         this.userCode = userCode;

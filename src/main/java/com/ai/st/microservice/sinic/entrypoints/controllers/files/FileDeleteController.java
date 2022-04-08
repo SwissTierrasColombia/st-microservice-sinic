@@ -19,7 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Api(value = "Manage Files", tags = {"Files"})
+@Api(value = "Manage Files", tags = { "Files" })
 @RestController
 public final class FileDeleteController extends ApiController {
 
@@ -27,22 +27,19 @@ public final class FileDeleteController extends ApiController {
 
     private final FileRemover fileRemover;
 
-    public FileDeleteController(AdministrationBusiness administrationBusiness, ManagerBusiness managerBusiness, FileRemover fileRemover) {
+    public FileDeleteController(AdministrationBusiness administrationBusiness, ManagerBusiness managerBusiness,
+            FileRemover fileRemover) {
         super(administrationBusiness, managerBusiness);
         this.fileRemover = fileRemover;
     }
 
     @DeleteMapping(value = "api/sinic/v1/deliveries/{deliveryId}/files/{fileId}")
     @ApiOperation(value = "Remove file")
-    @ApiResponses(value = {
-            @ApiResponse(code = 204, message = "File removed"),
-            @ApiResponse(code = 500, message = "Error Server", response = BasicResponseDto.class)})
+    @ApiResponses(value = { @ApiResponse(code = 204, message = "File removed"),
+            @ApiResponse(code = 500, message = "Error Server", response = BasicResponseDto.class) })
     @ResponseBody
-    public ResponseEntity<?> removeFile(
-            @PathVariable Long deliveryId,
-            @PathVariable Long fileId,
+    public ResponseEntity<?> removeFile(@PathVariable Long deliveryId, @PathVariable Long fileId,
             @RequestHeader("authorization") String headerAuthorization) {
-
 
         HttpStatus httpStatus;
         Object responseDto = null;
@@ -58,10 +55,7 @@ public final class FileDeleteController extends ApiController {
             validateDeliveryId(deliveryId);
             validateFileId(fileId);
 
-            fileRemover.handle(
-                    new FileRemoverCommand(
-                            deliveryId, fileId, session.entityCode()
-                    ));
+            fileRemover.handle(new FileRemoverCommand(deliveryId, fileId, session.entityCode()));
 
             httpStatus = HttpStatus.NO_CONTENT;
 

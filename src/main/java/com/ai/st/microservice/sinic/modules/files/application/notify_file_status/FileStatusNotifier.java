@@ -25,7 +25,7 @@ public class FileStatusNotifier implements CommandUseCase<FileStatusNotifierComm
     private final NotifierMessageBroker notifierMessageBroker;
 
     public FileStatusNotifier(AdministrationMicroservice administrationMicroservice, EmailTemplate template,
-                              NotifierMessageBroker notifierMessageBroker) {
+            NotifierMessageBroker notifierMessageBroker) {
         this.administrationMicroservice = administrationMicroservice;
         this.template = template;
         this.notifierMessageBroker = notifierMessageBroker;
@@ -40,16 +40,16 @@ public class FileStatusNotifier implements CommandUseCase<FileStatusNotifierComm
         AdministrationUser userInformation = findUser(command.userCode());
         String template = createTemplate(command);
 
-        String subject =
-                command.status().equals(FileStatusNotifierCommand.StatusFile.ACCEPTED) ? SUBJECT_ACCEPTED : SUBJECT_REJECTED;
+        String subject = command.status().equals(FileStatusNotifierCommand.StatusFile.ACCEPTED) ? SUBJECT_ACCEPTED
+                : SUBJECT_REJECTED;
 
         notifierMessageBroker.sendNotification(subject, template, userInformation.email().value(), command.userCode());
     }
 
     private String createTemplate(FileStatusNotifierCommand command) {
 
-        String templateFile =
-                command.status().equals(FileStatusNotifierCommand.StatusFile.ACCEPTED) ? FILE_TEMPLATE_ACCEPTED : FILE_TEMPLATE_REJECTED;
+        String templateFile = command.status().equals(FileStatusNotifierCommand.StatusFile.ACCEPTED)
+                ? FILE_TEMPLATE_ACCEPTED : FILE_TEMPLATE_REJECTED;
 
         Map<String, Object> data = new HashMap<>();
         data.put("department", command.department());

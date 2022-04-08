@@ -45,14 +45,14 @@ public final class UpdateStatusXTFOnSinicStatusImportChanged {
 
     private FileStatusUpdaterCommand.Status mappingEnum(MicroserviceResultSinicImportFile.Status status) {
         switch (status) {
-            case IMPORTING:
-                return FileStatusUpdaterCommand.Status.IMPORTING;
-            case SUCCESS_IMPORT:
-                return FileStatusUpdaterCommand.Status.IMPORT_SUCCESSFUL;
-            case FAILED_IMPORT:
-                return FileStatusUpdaterCommand.Status.IMPORT_UNSUCCESSFUL;
-            default:
-                throw new RuntimeException("Error mapping enum");
+        case IMPORTING:
+            return FileStatusUpdaterCommand.Status.IMPORTING;
+        case SUCCESS_IMPORT:
+            return FileStatusUpdaterCommand.Status.IMPORT_SUCCESSFUL;
+        case FAILED_IMPORT:
+            return FileStatusUpdaterCommand.Status.IMPORT_UNSUCCESSFUL;
+        default:
+            throw new RuntimeException("Error mapping enum");
         }
     }
 

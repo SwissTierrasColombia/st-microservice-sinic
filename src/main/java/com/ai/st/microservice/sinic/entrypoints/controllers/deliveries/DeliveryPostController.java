@@ -16,7 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Api(value = "Manage Deliveries", tags = {"Deliveries"})
+@Api(value = "Manage Deliveries", tags = { "Deliveries" })
 @RestController
 public final class DeliveryPostController extends ApiController {
 
@@ -25,19 +25,18 @@ public final class DeliveryPostController extends ApiController {
     private final DeliveryCreator deliveryCreator;
 
     public DeliveryPostController(AdministrationBusiness administrationBusiness, ManagerBusiness managerBusiness,
-                                  DeliveryCreator deliveryCreator) {
+            DeliveryCreator deliveryCreator) {
         super(administrationBusiness, managerBusiness);
         this.deliveryCreator = deliveryCreator;
     }
 
     @PostMapping(value = "api/sinic/v1/deliveries", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Create delivery")
-    @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Delivery created"),
-            @ApiResponse(code = 500, message = "Error Server", response = String.class)})
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "Delivery created"),
+            @ApiResponse(code = 500, message = "Error Server", response = String.class) })
     @ResponseBody
     public ResponseEntity<?> createDelivery(@RequestBody CreateDeliveryRequest request,
-                                            @RequestHeader("authorization") String headerAuthorization) {
+            @RequestHeader("authorization") String headerAuthorization) {
 
         HttpStatus httpStatus;
         Object responseDto = null;
@@ -56,13 +55,8 @@ public final class DeliveryPostController extends ApiController {
             String observations = request.getObservations();
             validateObservations(observations);
 
-            deliveryCreator.handle(
-                    new CreateDeliveryCommand(
-                            municipalityCode,
-                            session.entityCode(),
-                            session.userCode(),
-                            observations,
-                            CreateDeliveryCommand.DeliveryType.valueOf(request.getType())));
+            deliveryCreator.handle(new CreateDeliveryCommand(municipalityCode, session.entityCode(), session.userCode(),
+                    observations, CreateDeliveryCommand.DeliveryType.valueOf(request.getType())));
 
             httpStatus = HttpStatus.CREATED;
 

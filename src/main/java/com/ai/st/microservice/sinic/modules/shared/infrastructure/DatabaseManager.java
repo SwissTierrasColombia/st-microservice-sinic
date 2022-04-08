@@ -41,15 +41,16 @@ public final class DatabaseManager implements IDatabaseManager {
 
             Connection connection = DriverManager.getConnection(url, databaseUsername, databasePassword);
 
-            PreparedStatement stmt1 = connection.prepareStatement(String.format("CREATE SCHEMA IF NOT EXISTS %s;", schema));
+            PreparedStatement stmt1 = connection
+                    .prepareStatement(String.format("CREATE SCHEMA IF NOT EXISTS %s;", schema));
             stmt1.execute();
 
         } catch (SQLException e) {
             log.error(String.format("Error creando esquema %s : %s", schema, e.getMessage()));
-            throw new ErrorFromInfrastructure("No se ha podido crear el esquema para realizar la importación de archivos XTF");
+            throw new ErrorFromInfrastructure(
+                    "No se ha podido crear el esquema para realizar la importación de archivos XTF");
         }
 
     }
-
 
 }

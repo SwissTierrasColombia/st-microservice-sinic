@@ -19,13 +19,15 @@ public final class HTTPWorkspaceMicroservice implements WorkspaceMicroservice {
     @Override
     public DepartmentMunicipality getDepartmentMunicipalityName(MunicipalityCode municipalityCode) {
 
-        MicroserviceMunicipalityDto municipalityDto = workspaceFeignClient.findMunicipalityByCode(municipalityCode.value());
+        MicroserviceMunicipalityDto municipalityDto = workspaceFeignClient
+                .findMunicipalityByCode(municipalityCode.value());
 
         if (municipalityDto == null) {
             throw new MunicipalityInvalid(municipalityCode.value());
         }
 
-        return DepartmentMunicipality.builder().department(DepartmentName.fromValue(municipalityDto.getDepartment().getName()))
+        return DepartmentMunicipality.builder()
+                .department(DepartmentName.fromValue(municipalityDto.getDepartment().getName()))
                 .municipality(MunicipalityName.fromValue(municipalityDto.getName())).build();
     }
 

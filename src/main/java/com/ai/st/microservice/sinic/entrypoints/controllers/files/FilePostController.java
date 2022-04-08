@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Objects;
 
-@Api(value = "Manage Files", tags = {"Files"})
+@Api(value = "Manage Files", tags = { "Files" })
 @RestController
 public final class FilePostController extends ApiController {
 
@@ -33,7 +33,8 @@ public final class FilePostController extends ApiController {
     private final StoreFile storeFile;
     private final CompressorFile compressorFile;
 
-    public FilePostController(AdministrationBusiness administrationBusiness, ManagerBusiness managerBusiness, FileAdder fileAdder, StoreFile storeFile, CompressorFile compressorFile) {
+    public FilePostController(AdministrationBusiness administrationBusiness, ManagerBusiness managerBusiness,
+            FileAdder fileAdder, StoreFile storeFile, CompressorFile compressorFile) {
         super(administrationBusiness, managerBusiness);
         this.fileAdder = fileAdder;
         this.storeFile = storeFile;
@@ -42,13 +43,10 @@ public final class FilePostController extends ApiController {
 
     @PostMapping(value = "api/sinic/v1/deliveries/{deliveryId}/files", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Add file to delivery")
-    @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "File added"),
-            @ApiResponse(code = 500, message = "Error Server", response = String.class)})
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "File added"),
+            @ApiResponse(code = 500, message = "Error Server", response = String.class) })
     @ResponseBody
-    public ResponseEntity<?> addFileToDelivery(
-            @PathVariable Long deliveryId,
-            @ModelAttribute AddFileToDelivery request,
+    public ResponseEntity<?> addFileToDelivery(@PathVariable Long deliveryId, @ModelAttribute AddFileToDelivery request,
             @RequestHeader("authorization") String headerAuthorization) {
 
         HttpStatus httpStatus;
@@ -65,7 +63,8 @@ public final class FilePostController extends ApiController {
             validateDeliveryId(deliveryId);
             validateObservations(request.getObservations());
 
-            fileAdder.handle(validateFileAndCreateCommand(deliveryId, session.entityCode(), session.userCode(), request));
+            fileAdder.handle(
+                    validateFileAndCreateCommand(deliveryId, session.entityCode(), session.userCode(), request));
             httpStatus = HttpStatus.OK;
 
         } catch (InputValidationException e) {
@@ -97,8 +96,8 @@ public final class FilePostController extends ApiController {
         }
     }
 
-    private FileAdderCommand validateFileAndCreateCommand(Long deliveryId, Long managerCode, Long userCode, AddFileToDelivery request)
-            throws InputValidationException, IOException {
+    private FileAdderCommand validateFileAndCreateCommand(Long deliveryId, Long managerCode, Long userCode,
+            AddFileToDelivery request) throws InputValidationException, IOException {
 
         MultipartFile file = request.getAttachment();
         if (file == null) {
@@ -123,8 +122,8 @@ public final class FilePostController extends ApiController {
 
         storeFile.deleteFile(temporalFilePath);
 
-        return new FileAdderCommand(
-                deliveryId, managerCode, userCode, request.getObservations(), file.getBytes(), extension);
+        return new FileAdderCommand(deliveryId, managerCode, userCode, request.getObservations(), file.getBytes(),
+                extension);
     }
 
 }

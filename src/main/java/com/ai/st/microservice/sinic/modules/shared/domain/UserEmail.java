@@ -9,7 +9,8 @@ public final class UserEmail extends StringValueObject {
     }
 
     private static void ensureEmail(String value) {
-        if (value == null || value.isEmpty()) throw new UserEmailInvalid(value);
+        if (value == null || value.isEmpty())
+            throw new UserEmailInvalid(value);
     }
 
     public static UserEmail fromValue(String value) {

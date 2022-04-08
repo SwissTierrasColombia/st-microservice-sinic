@@ -16,7 +16,8 @@ public class DeliveryObservations {
     }
 
     private void ensureObservations(String value) {
-        if (value == null || value.isEmpty()) throw new DeliveryObservationsInvalid(value);
+        if (value == null || value.isEmpty())
+            throw new DeliveryObservationsInvalid(value);
     }
 
     public String value() {

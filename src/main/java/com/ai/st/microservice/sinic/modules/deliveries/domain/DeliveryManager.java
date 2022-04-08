@@ -24,5 +24,4 @@ public abstract class DeliveryManager {
         public abstract DeliveryManager build();
     }
 
-
 }

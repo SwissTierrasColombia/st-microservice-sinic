@@ -4,7 +4,9 @@ import com.ai.st.microservice.sinic.modules.shared.application.Command;
 
 public class FileStatusNotifierCommand implements Command {
 
-    public enum StatusFile {ACCEPTED, REJECTED}
+    public enum StatusFile {
+        ACCEPTED, REJECTED
+    }
 
     private final StatusFile status;
     private final String municipality;
