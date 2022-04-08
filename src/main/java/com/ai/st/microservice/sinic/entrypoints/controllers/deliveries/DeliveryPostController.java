@@ -8,6 +8,8 @@ import com.ai.st.microservice.sinic.entrypoints.controllers.ApiController;
 import com.ai.st.microservice.sinic.modules.deliveries.application.create_delivery.CreateDeliveryCommand;
 import com.ai.st.microservice.sinic.modules.deliveries.application.create_delivery.DeliveryCreator;
 import com.ai.st.microservice.sinic.modules.shared.domain.DomainError;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.SCMTracing;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.TracingKeyword;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +45,10 @@ public final class DeliveryPostController extends ApiController {
 
         try {
 
+            SCMTracing.setTransactionName("createDelivery");
+            SCMTracing.addCustomParameter(TracingKeyword.AUTHORIZATION_HEADER, headerAuthorization);
+            SCMTracing.addCustomParameter(TracingKeyword.BODY_REQUEST, request.toString());
+
             InformationSession session = this.getInformationSession(headerAuthorization);
 
             if (!session.isSinic()) {
@@ -63,15 +69,18 @@ public final class DeliveryPostController extends ApiController {
         } catch (InputValidationException e) {
             log.error("Error DeliveryPostController@createDelivery#Validation ---> " + e.getMessage());
             httpStatus = HttpStatus.BAD_REQUEST;
-            responseDto = new BasicResponseDto(e.getMessage(), 1);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (DomainError e) {
             log.error("Error DeliveryPostController@createDelivery#Domain ---> " + e.errorMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-            responseDto = new BasicResponseDto(e.errorMessage(), 2);
+            responseDto = new BasicResponseDto(e.errorMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
             log.error("Error DeliveryPostController@createDelivery#General ---> " + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            responseDto = new BasicResponseDto(e.getMessage(), 3);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(responseDto, httpStatus);
@@ -125,5 +134,11 @@ final class CreateDeliveryRequest {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    @Override
+    public String toString() {
+        return "CreateDeliveryRequest{" + "municipalityCode='" + municipalityCode + '\'' + ", observations='"
+                + observations + '\'' + ", type='" + type + '\'' + '}';
     }
 }

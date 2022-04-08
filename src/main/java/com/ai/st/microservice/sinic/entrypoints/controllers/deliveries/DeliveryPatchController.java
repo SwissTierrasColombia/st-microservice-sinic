@@ -11,6 +11,8 @@ import com.ai.st.microservice.sinic.modules.deliveries.application.send_delivery
 import com.ai.st.microservice.sinic.modules.deliveries.application.send_delivery_to_cadastral_authority.DeliveryToCadastralAuthoritySenderCommand;
 import com.ai.st.microservice.sinic.modules.shared.domain.DomainError;
 import com.ai.st.microservice.sinic.modules.shared.infrastructure.crypto.CryptoService;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.SCMTracing;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.TracingKeyword;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +53,9 @@ public final class DeliveryPatchController extends ApiController {
 
         try {
 
+            SCMTracing.setTransactionName("changeStatusToSentToCadastalAuthority");
+            SCMTracing.addCustomParameter(TracingKeyword.AUTHORIZATION_HEADER, headerAuthorization);
+
             InformationSession session = this.getInformationSession(headerAuthorization);
 
             if (!session.isSinic()) {
@@ -68,17 +73,20 @@ public final class DeliveryPatchController extends ApiController {
             log.error("Error DeliveryPatchController@changeStatusToSentToCadastalAuthority#Validation ---> "
                     + e.getMessage());
             httpStatus = HttpStatus.BAD_REQUEST;
-            responseDto = new BasicResponseDto(e.getMessage(), 1);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (DomainError e) {
             log.error("Error DeliveryPatchController@changeStatusToSentToCadastalAuthority#Domain ---> "
                     + e.errorMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-            responseDto = new BasicResponseDto(e.errorMessage(), 2);
+            responseDto = new BasicResponseDto(e.errorMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
             log.error("Error DeliveryPatchController@changeStatusToSentToCadastalAuthority#General ---> "
                     + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            responseDto = new BasicResponseDto(e.getMessage(), 3);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(responseDto, httpStatus);
@@ -97,6 +105,10 @@ public final class DeliveryPatchController extends ApiController {
         Object responseDto = null;
 
         try {
+
+            SCMTracing.setTransactionName("changeStatusToDelivery");
+            SCMTracing.addCustomParameter(TracingKeyword.ST_TOKEN, stPublicTokenEncrypted);
+            SCMTracing.addCustomParameter(TracingKeyword.BODY_REQUEST, request.toString());
 
             String token = crypto.decrypt(stPublicTokenEncrypted);
             if (!matchTokenIGAC(token)) {
@@ -117,15 +129,18 @@ public final class DeliveryPatchController extends ApiController {
         } catch (InputValidationException e) {
             log.error("Error DeliveryPatchController@changeStatusToDelivery#Validation ---> " + e.getMessage());
             httpStatus = HttpStatus.BAD_REQUEST;
-            responseDto = new BasicResponseDto(e.getMessage(), 1);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (DomainError e) {
             log.error("Error DeliveryPatchController@changeStatusToDelivery#Domain ---> " + e.errorMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-            responseDto = new BasicResponseDto(e.errorMessage(), 2);
+            responseDto = new BasicResponseDto(e.errorMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
             log.error("Error DeliveryPatchController@changeStatusToDelivery#General ---> " + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            responseDto = new BasicResponseDto(e.getMessage(), 3);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(responseDto, httpStatus);
@@ -159,5 +174,10 @@ final class ChangeDeliveryStatusRequest {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return "ChangeDeliveryStatusRequest{" + "status='" + status + '\'' + '}';
     }
 }

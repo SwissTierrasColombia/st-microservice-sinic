@@ -4,6 +4,7 @@ import com.ai.st.microservice.common.dto.ili.MicroserviceValidationDto;
 import com.ai.st.microservice.sinic.modules.files.application.update_file_status.FileStatusUpdater;
 import com.ai.st.microservice.sinic.modules.files.application.update_file_status.FileStatusUpdaterCommand;
 import com.ai.st.microservice.sinic.modules.shared.domain.contracts.CompressorFile;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.SCMTracing;
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,10 @@ public final class UpdateStateXTFOnValidationDone {
                     logPath = compressorFile.compress(new File(validationDto.getLog()), buildNamespace(), zipName);
                 }
             } catch (Exception e) {
-                log.error("Error comprimiendo el log: " + e.getMessage());
+                String messageError = String.format("Error comprimiendo el log del archivo %s : %s",
+                        validationDto.getReferenceId(), e.getMessage());
+                SCMTracing.sendError(messageError);
+                log.error(messageError);
             }
 
             String referenceId = validationDto.getReferenceId();
@@ -58,7 +62,11 @@ public final class UpdateStateXTFOnValidationDone {
             }
 
         } catch (Exception e) {
-            log.error("Error actualizando el estado del archivo xtf: " + e.getMessage());
+            String messageError = String.format(
+                    "Error actualizando el estado del archivo XTF %s después de su validación: %s",
+                    validationDto.getReferenceId(), e.getMessage());
+            SCMTracing.sendError(messageError);
+            log.error(messageError);
         }
 
     }

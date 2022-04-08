@@ -13,6 +13,8 @@ import com.ai.st.microservice.sinic.modules.files.application.get_file_url.FileU
 import com.ai.st.microservice.sinic.modules.files.application.get_log_url.FileLogURLGetter;
 import com.ai.st.microservice.sinic.modules.files.application.get_log_url.FileLogURLGetterQuery;
 import com.ai.st.microservice.sinic.modules.shared.domain.DomainError;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.SCMTracing;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.TracingKeyword;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -66,6 +68,9 @@ public final class FileGetController extends ApiController {
 
         try {
 
+            SCMTracing.setTransactionName("findAttachmentsFromDelivery");
+            SCMTracing.addCustomParameter(TracingKeyword.AUTHORIZATION_HEADER, headerAuthorization);
+
             InformationSession session = this.getInformationSession(headerAuthorization);
 
             if (session.isManager() && !session.isSinic()) {
@@ -83,11 +88,13 @@ public final class FileGetController extends ApiController {
         } catch (DomainError e) {
             log.error("Error FileGetController@findAttachmentsFromDelivery#Domain ---> " + e.getMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-            responseDto = new BasicResponseDto(e.errorMessage(), 2);
+            responseDto = new BasicResponseDto(e.errorMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
             log.error("Error FileGetController@findAttachmentsFromDelivery#General ---> " + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            responseDto = new BasicResponseDto(e.getMessage(), 1);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(responseDto, httpStatus);
@@ -106,6 +113,9 @@ public final class FileGetController extends ApiController {
         InputStreamResource resource;
 
         try {
+
+            SCMTracing.setTransactionName("downloadFile");
+            SCMTracing.addCustomParameter(TracingKeyword.AUTHORIZATION_HEADER, headerAuthorization);
 
             InformationSession session = this.getInformationSession(headerAuthorization);
 
@@ -135,11 +145,13 @@ public final class FileGetController extends ApiController {
             resource = new InputStreamResource(new FileInputStream(file));
 
         } catch (DomainError e) {
+            SCMTracing.sendError(e.getMessage());
             log.error("Error FileGetController@downloadFile#Domain ---> " + e.getMessage());
-            return new ResponseEntity<>(new BasicResponseDto(e.errorMessage(), 2), HttpStatus.UNPROCESSABLE_ENTITY);
+            return new ResponseEntity<>(new BasicResponseDto(e.errorMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
         } catch (Exception e) {
+            SCMTracing.sendError(e.getMessage());
             log.error("Error FileGetController@downloadFile#General ---> " + e.getMessage());
-            return new ResponseEntity<>(new BasicResponseDto(e.getMessage(), 1), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new BasicResponseDto(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         return this.responseFile(file, mediaType, resource);
@@ -158,6 +170,9 @@ public final class FileGetController extends ApiController {
         InputStreamResource resource;
 
         try {
+
+            SCMTracing.setTransactionName("downloadLog");
+            SCMTracing.addCustomParameter(TracingKeyword.AUTHORIZATION_HEADER, headerAuthorization);
 
             InformationSession session = this.getInformationSession(headerAuthorization);
 
@@ -186,11 +201,13 @@ public final class FileGetController extends ApiController {
             resource = new InputStreamResource(new FileInputStream(file));
 
         } catch (DomainError e) {
+            SCMTracing.sendError(e.getMessage());
             log.error("Error FileGetController@downloadLog#Domain ---> " + e.getMessage());
-            return new ResponseEntity<>(new BasicResponseDto(e.errorMessage(), 2), HttpStatus.UNPROCESSABLE_ENTITY);
+            return new ResponseEntity<>(new BasicResponseDto(e.errorMessage()), HttpStatus.UNPROCESSABLE_ENTITY);
         } catch (Exception e) {
+            SCMTracing.sendError(e.getMessage());
             log.error("Error FileGetController@downloadLog#General ---> " + e.getMessage());
-            return new ResponseEntity<>(new BasicResponseDto(e.getMessage(), 1), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new BasicResponseDto(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         return this.responseFile(file, mediaType, resource);

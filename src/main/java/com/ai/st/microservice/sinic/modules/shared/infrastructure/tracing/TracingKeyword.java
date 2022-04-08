@@ -5,7 +5,7 @@ public enum TracingKeyword {
     MANAGER_NAME("managerName"), AUTHORIZATION_HEADER("authorizationHeader"), DEPARTMENT_ID("departmentId"),
     IS_SUPER_ADMIN("isSuperAdmin"), IS_ADMIN("isAdmin"), IS_MANAGER("isManager"), IS_PROVIDER("isProvider"),
     IS_OPERATOR("isOperator"), BODY_REQUEST("bodyRequest"), PROVIDER_ID("providerId"), PROVIDER_NAME("providerName"),
-    OPERATOR_ID("operatorId"), OPERATOR_NAME("operatorName");
+    OPERATOR_ID("operatorId"), OPERATOR_NAME("operatorName"), ST_TOKEN("stToken");
 
     private final String value;
 

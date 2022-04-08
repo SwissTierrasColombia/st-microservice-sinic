@@ -10,6 +10,8 @@ import com.ai.st.microservice.sinic.modules.files.application.add_file.FileAdder
 import com.ai.st.microservice.sinic.modules.shared.domain.DomainError;
 import com.ai.st.microservice.sinic.modules.shared.domain.contracts.CompressorFile;
 import com.ai.st.microservice.sinic.modules.shared.domain.contracts.StoreFile;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.SCMTracing;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.TracingKeyword;
 import io.swagger.annotations.*;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -54,6 +56,10 @@ public final class FilePostController extends ApiController {
 
         try {
 
+            SCMTracing.setTransactionName("addFileToDelivery");
+            SCMTracing.addCustomParameter(TracingKeyword.AUTHORIZATION_HEADER, headerAuthorization);
+            SCMTracing.addCustomParameter(TracingKeyword.BODY_REQUEST, request.toString());
+
             InformationSession session = this.getInformationSession(headerAuthorization);
 
             if (!session.isSinic()) {
@@ -70,15 +76,18 @@ public final class FilePostController extends ApiController {
         } catch (InputValidationException e) {
             log.error("Error FilePostController@addFileToDelivery#Validation ---> " + e.getMessage());
             httpStatus = HttpStatus.BAD_REQUEST;
-            responseDto = new BasicResponseDto(e.getMessage(), 1);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (DomainError e) {
             log.error("Error FilePostController@addFileToDelivery#Domain ---> " + e.errorMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-            responseDto = new BasicResponseDto(e.errorMessage(), 2);
+            responseDto = new BasicResponseDto(e.errorMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
             log.error("Error FilePostController@addFileToDelivery#General ---> " + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            responseDto = new BasicResponseDto(e.getMessage(), 3);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(responseDto, httpStatus);
@@ -151,5 +160,10 @@ final class AddFileToDelivery {
 
     public void setAttachment(MultipartFile attachment) {
         this.attachment = attachment;
+    }
+
+    @Override
+    public String toString() {
+        return "AddFileToDelivery{" + "observations='" + observations + '\'' + '}';
     }
 }

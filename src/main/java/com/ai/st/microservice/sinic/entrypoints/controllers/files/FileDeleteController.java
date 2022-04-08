@@ -9,6 +9,8 @@ import com.ai.st.microservice.sinic.entrypoints.controllers.deliveries.DeliveryD
 import com.ai.st.microservice.sinic.modules.files.application.remove_file.FileRemover;
 import com.ai.st.microservice.sinic.modules.files.application.remove_file.FileRemoverCommand;
 import com.ai.st.microservice.sinic.modules.shared.domain.DomainError;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.SCMTracing;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.TracingKeyword;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -46,6 +48,9 @@ public final class FileDeleteController extends ApiController {
 
         try {
 
+            SCMTracing.setTransactionName("removeFile");
+            SCMTracing.addCustomParameter(TracingKeyword.AUTHORIZATION_HEADER, headerAuthorization);
+
             InformationSession session = this.getInformationSession(headerAuthorization);
 
             if (!session.isSinic()) {
@@ -62,19 +67,21 @@ public final class FileDeleteController extends ApiController {
         } catch (InputValidationException e) {
             log.error("Error FileDeleteController@removeFile#Validation ---> " + e.getMessage());
             httpStatus = HttpStatus.BAD_REQUEST;
-            responseDto = new BasicResponseDto(e.getMessage(), 3);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (DomainError e) {
             log.error("Error FileDeleteController@removeFile#Domain ---> " + e.getMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-            responseDto = new BasicResponseDto(e.errorMessage(), 2);
+            responseDto = new BasicResponseDto(e.errorMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
             log.error("Error FileDeleteController@removeFile#General ---> " + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            responseDto = new BasicResponseDto(e.getMessage(), 1);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(responseDto, httpStatus);
-
     }
 
     private void validateDeliveryId(Long deliveryId) throws InputValidationException {
