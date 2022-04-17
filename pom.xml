@@ -13,7 +13,7 @@
 
     <groupId>com.ai.st.microservice.sinic</groupId>
     <artifactId>st-microservice-sinic</artifactId>
-    <version>1.1.6</version>
+    <version>1.3.0</version>
     <name>st-microservice-sinic</name>
     <description>SINIC</description>
 
@@ -129,6 +129,14 @@
             <groupId>com.newrelic.agent.java</groupId>
             <artifactId>newrelic-api</artifactId>
             <version>7.5.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.newrelic.agent.java</groupId>
+            <artifactId>newrelic-agent</artifactId>
+            <version>7.5.0</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
