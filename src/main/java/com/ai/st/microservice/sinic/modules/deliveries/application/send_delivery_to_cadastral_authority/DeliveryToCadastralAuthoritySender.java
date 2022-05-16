@@ -14,19 +14,21 @@ import com.ai.st.microservice.sinic.modules.shared.application.CommandUseCase;
 import com.ai.st.microservice.sinic.modules.shared.domain.ManagerCode;
 import com.ai.st.microservice.sinic.modules.shared.domain.Service;
 import com.ai.st.microservice.sinic.modules.shared.domain.contracts.IDatabaseManager;
-import com.ai.st.microservice.sinic.modules.shared.domain.contracts.MessageBroker;
+import com.ai.st.microservice.sinic.modules.shared.domain.contracts.IliMessageBroker;
 
 import java.util.List;
 
 @Service
-public final class DeliveryToCadastralAuthoritySender implements CommandUseCase<DeliveryToCadastralAuthoritySenderCommand> {
+public final class DeliveryToCadastralAuthoritySender
+        implements CommandUseCase<DeliveryToCadastralAuthoritySenderCommand> {
 
     private final DeliveryRepository deliveryRepository;
     private final FileRepository fileRepository;
     private final IDatabaseManager databaseManager;
-    private final MessageBroker messageBroker;
+    private final IliMessageBroker messageBroker;
 
-    public DeliveryToCadastralAuthoritySender(DeliveryRepository deliveryRepository, FileRepository fileRepository, IDatabaseManager databaseManager, MessageBroker messageBroker) {
+    public DeliveryToCadastralAuthoritySender(DeliveryRepository deliveryRepository, FileRepository fileRepository,
+            IDatabaseManager databaseManager, IliMessageBroker messageBroker) {
         this.deliveryRepository = deliveryRepository;
         this.fileRepository = fileRepository;
         this.databaseManager = databaseManager;
@@ -63,7 +65,8 @@ public final class DeliveryToCadastralAuthoritySender implements CommandUseCase<
 
         // verify status of the delivery
         if (!delivery.isDraft()) {
-            throw new UnauthorizedToModifyDelivery("No se puede enviar la entrega, porque la entrega no es un borrador.");
+            throw new UnauthorizedToModifyDelivery(
+                    "No se puede enviar la entrega, porque la entrega no es un borrador.");
         }
 
         verifyDeliveryHaveMinimumOneFile(files);
@@ -73,14 +76,16 @@ public final class DeliveryToCadastralAuthoritySender implements CommandUseCase<
     private void verifyDeliveryHaveMinimumOneFile(List<File> files) {
         long count = files.size();
         if (count == 0) {
-            throw new UnauthorizedToChangeDeliveryStatus("No se puede enviar la entrega porque no tiene cargado ningún archivo.");
+            throw new UnauthorizedToChangeDeliveryStatus(
+                    "No se puede enviar la entrega porque no tiene cargado ningún archivo.");
         }
     }
 
     private void verifyAllFilesAreSuccessful(List<File> files) {
         long count = files.stream().filter(File::allowToSendDelivery).count();
         if (count < files.size()) {
-            throw new UnauthorizedToChangeDeliveryStatus("No se puede enviar la entrega porque existen archivos no válidos.");
+            throw new UnauthorizedToChangeDeliveryStatus(
+                    "No se puede enviar la entrega porque existen archivos no válidos.");
         }
     }
 

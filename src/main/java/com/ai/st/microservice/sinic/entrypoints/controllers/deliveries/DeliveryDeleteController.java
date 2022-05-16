@@ -8,6 +8,8 @@ import com.ai.st.microservice.sinic.entrypoints.controllers.ApiController;
 import com.ai.st.microservice.sinic.modules.deliveries.application.remove_delivery.DeliveryRemover;
 import com.ai.st.microservice.sinic.modules.deliveries.application.remove_delivery.DeliveryRemoverCommand;
 import com.ai.st.microservice.sinic.modules.shared.domain.DomainError;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.SCMTracing;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.TracingKeyword;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -18,7 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Api(value = "Manage Deliveries", tags = {"Deliveries"})
+@Api(value = "Manage Deliveries", tags = { "Deliveries" })
 @RestController
 public final class DeliveryDeleteController extends ApiController {
 
@@ -27,26 +29,26 @@ public final class DeliveryDeleteController extends ApiController {
     private final DeliveryRemover deliveryRemover;
 
     public DeliveryDeleteController(AdministrationBusiness administrationBusiness, ManagerBusiness managerBusiness,
-                                    DeliveryRemover deliveryRemover) {
+            DeliveryRemover deliveryRemover) {
         super(administrationBusiness, managerBusiness);
         this.deliveryRemover = deliveryRemover;
     }
 
     @DeleteMapping(value = "api/sinic/v1/deliveries/{deliveryId}")
     @ApiOperation(value = "Remove delivery")
-    @ApiResponses(value = {
-            @ApiResponse(code = 204, message = "Delivery removed"),
-            @ApiResponse(code = 500, message = "Error Server", response = BasicResponseDto.class)})
+    @ApiResponses(value = { @ApiResponse(code = 204, message = "Delivery removed"),
+            @ApiResponse(code = 500, message = "Error Server", response = BasicResponseDto.class) })
     @ResponseBody
-    public ResponseEntity<?> removeDelivery(
-            @PathVariable Long deliveryId,
+    public ResponseEntity<?> removeDelivery(@PathVariable Long deliveryId,
             @RequestHeader("authorization") String headerAuthorization) {
-
 
         HttpStatus httpStatus;
         Object responseDto = null;
 
         try {
+
+            SCMTracing.setTransactionName("removeDelivery");
+            SCMTracing.addCustomParameter(TracingKeyword.AUTHORIZATION_HEADER, headerAuthorization);
 
             InformationSession session = this.getInformationSession(headerAuthorization);
 
@@ -56,29 +58,28 @@ public final class DeliveryDeleteController extends ApiController {
 
             validateDeliveryId(deliveryId);
 
-            deliveryRemover.handle(
-                    new DeliveryRemoverCommand(
-                            deliveryId, session.entityCode()
-                    ));
+            deliveryRemover.handle(new DeliveryRemoverCommand(deliveryId, session.entityCode()));
 
             httpStatus = HttpStatus.NO_CONTENT;
 
         } catch (InputValidationException e) {
             log.error("Error DeliveryDeleteController@removeDelivery#Validation ---> " + e.getMessage());
             httpStatus = HttpStatus.BAD_REQUEST;
-            responseDto = new BasicResponseDto(e.getMessage(), 3);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (DomainError e) {
             log.error("Error DeliveryDeleteController@removeDelivery#Domain ---> " + e.getMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-            responseDto = new BasicResponseDto(e.errorMessage(), 2);
+            responseDto = new BasicResponseDto(e.errorMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
             log.error("Error DeliveryDeleteController@removeDelivery#General ---> " + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            responseDto = new BasicResponseDto(e.getMessage(), 1);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(responseDto, httpStatus);
-
     }
 
     private void validateDeliveryId(Long deliveryId) throws InputValidationException {

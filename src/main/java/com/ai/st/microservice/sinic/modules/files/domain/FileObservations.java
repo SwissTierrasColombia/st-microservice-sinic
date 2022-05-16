@@ -16,7 +16,8 @@ public class FileObservations {
     }
 
     private void ensureObservations(String value) {
-        if (value == null || value.isEmpty()) throw new FileObservationsInvalid(value);
+        if (value == null || value.isEmpty())
+            throw new FileObservationsInvalid(value);
     }
 
     public String value() {

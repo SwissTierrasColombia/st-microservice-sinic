@@ -12,6 +12,8 @@ import com.ai.st.microservice.sinic.modules.deliveries.application.search_delive
 import com.ai.st.microservice.sinic.modules.deliveries.application.search_delivery.DeliverySearcherQuery;
 import com.ai.st.microservice.sinic.modules.shared.application.PageableResponse;
 import com.ai.st.microservice.sinic.modules.shared.domain.DomainError;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.SCMTracing;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.TracingKeyword;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -25,7 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Api(value = "Manage Deliveries", tags = {"Deliveries"})
+@Api(value = "Manage Deliveries", tags = { "Deliveries" })
 @RestController
 public final class DeliveryGetController extends ApiController {
 
@@ -34,7 +36,8 @@ public final class DeliveryGetController extends ApiController {
     private final DeliveriesFinder deliveriesFinder;
     private final DeliverySearcher deliverySearcher;
 
-    public DeliveryGetController(AdministrationBusiness administrationBusiness, ManagerBusiness managerBusiness, DeliveriesFinder deliveriesFinder, DeliverySearcher deliverySearcher) {
+    public DeliveryGetController(AdministrationBusiness administrationBusiness, ManagerBusiness managerBusiness,
+            DeliveriesFinder deliveriesFinder, DeliverySearcher deliverySearcher) {
         super(administrationBusiness, managerBusiness);
         this.deliveriesFinder = deliveriesFinder;
         this.deliverySearcher = deliverySearcher;
@@ -42,12 +45,10 @@ public final class DeliveryGetController extends ApiController {
 
     @GetMapping(value = "api/sinic/v1/deliveries", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Get deliveries")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Deliveries got", response = PageableResponse.class),
-            @ApiResponse(code = 500, message = "Error Server", response = BasicResponseDto.class)})
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Deliveries got", response = PageableResponse.class),
+            @ApiResponse(code = 500, message = "Error Server", response = BasicResponseDto.class) })
     @ResponseBody
-    public ResponseEntity<?> findDeliveries(
-            @RequestParam(name = "page") int page,
+    public ResponseEntity<?> findDeliveries(@RequestParam(name = "page") int page,
             @RequestParam(name = "limit") int limit,
             @RequestParam(name = "states", required = false) List<String> states,
             @RequestParam(name = "code", required = false) String code,
@@ -60,34 +61,30 @@ public final class DeliveryGetController extends ApiController {
 
         try {
 
+            SCMTracing.setTransactionName("findDeliveries");
+            SCMTracing.addCustomParameter(TracingKeyword.AUTHORIZATION_HEADER, headerAuthorization);
+
             InformationSession session = this.getInformationSession(headerAuthorization);
 
             if (session.isManager() && !session.isSinic()) {
                 throw new InputValidationException("El usuario no tiene permisos para consultar entregas.");
             }
 
-            responseDto = deliveriesFinder.handle(
-                    new DeliveriesFinderQuery(
-                            page,
-                            limit,
-                            states,
-                            code,
-                            municipality,
-                            manager,
-                            session.role(),
-                            session.entityCode(),
-                            session.userCode()));
+            responseDto = deliveriesFinder.handle(new DeliveriesFinderQuery(page, limit, states, code, municipality,
+                    manager, session.role(), session.entityCode(), session.userCode()));
 
             httpStatus = HttpStatus.OK;
 
         } catch (DomainError e) {
             log.error("Error DeliveryGetController@findDeliveries#Domain ---> " + e.getMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-            responseDto = new BasicResponseDto(e.errorMessage(), 2);
+            responseDto = new BasicResponseDto(e.errorMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
             log.error("Error DeliveryGetController@findDeliveries#General ---> " + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            responseDto = new BasicResponseDto(e.getMessage(), 1);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(responseDto, httpStatus);
@@ -95,18 +92,19 @@ public final class DeliveryGetController extends ApiController {
 
     @GetMapping(value = "api/sinic/v1/deliveries/{deliveryId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Search delivery")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Delivery got", response = DeliveryResponse.class),
-            @ApiResponse(code = 500, message = "Error Server", response = BasicResponseDto.class)})
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Delivery got", response = DeliveryResponse.class),
+            @ApiResponse(code = 500, message = "Error Server", response = BasicResponseDto.class) })
     @ResponseBody
-    public ResponseEntity<?> searchDelivery(
-            @PathVariable Long deliveryId,
+    public ResponseEntity<?> searchDelivery(@PathVariable Long deliveryId,
             @RequestHeader("authorization") String headerAuthorization) {
 
         HttpStatus httpStatus;
         Object responseDto;
 
         try {
+
+            SCMTracing.setTransactionName("searchDelivery");
+            SCMTracing.addCustomParameter(TracingKeyword.AUTHORIZATION_HEADER, headerAuthorization);
 
             if (deliveryId <= 0) {
                 throw new InputValidationException("El ID de la entrega no es válido.");
@@ -118,24 +116,26 @@ public final class DeliveryGetController extends ApiController {
                 throw new InputValidationException("El usuario no tiene permisos para consultar entregas.");
             }
 
-            responseDto = deliverySearcher.handle(
-                    new DeliverySearcherQuery(deliveryId, session.role(), session.entityCode())
-            );
+            responseDto = deliverySearcher
+                    .handle(new DeliverySearcherQuery(deliveryId, session.role(), session.entityCode()));
 
             httpStatus = HttpStatus.OK;
 
         } catch (InputValidationException e) {
             log.error("Error DeliveryGetController@searchDelivery#Validation ---> " + e.getMessage());
             httpStatus = HttpStatus.BAD_REQUEST;
-            responseDto = new BasicResponseDto(e.getMessage(), 3);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (DomainError e) {
             log.error("Error DeliveryGetController@searchDelivery#Domain ---> " + e.getMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-            responseDto = new BasicResponseDto(e.errorMessage(), 2);
+            responseDto = new BasicResponseDto(e.errorMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
             log.error("Error DeliveryGetController@searchDelivery#General ---> " + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            responseDto = new BasicResponseDto(e.getMessage(), 1);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(responseDto, httpStatus);

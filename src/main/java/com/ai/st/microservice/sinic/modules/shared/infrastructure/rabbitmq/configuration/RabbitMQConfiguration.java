@@ -1,4 +1,4 @@
-package com.ai.st.microservice.sinic.modules.shared.infrastructure.rabbitmq;
+package com.ai.st.microservice.sinic.modules.shared.infrastructure.rabbitmq.configuration;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -85,8 +85,7 @@ public class RabbitMQConfiguration {
 
     @Bean
     public Binding bindingResultProcessSinicFilesName() {
-        return BindingBuilder.bind(queueResultProcessSinicFilesName())
-                .to(exchangeResultProcessSinicFilesName())
+        return BindingBuilder.bind(queueResultProcessSinicFilesName()).to(exchangeResultProcessSinicFilesName())
                 .with(queueResultProcessSinicFilesRoutingKey);
     }
 

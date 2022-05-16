@@ -19,7 +19,7 @@ public final class DeliveryCreator implements CommandUseCase<CreateDeliveryComma
     private final DateTime dateTime;
 
     public DeliveryCreator(DeliveryRepository deliveryRepository, WorkspaceMicroservice workspaceMicroservice,
-                           ManagerMicroservice managerMicroservice, DateTime dateTime) {
+            ManagerMicroservice managerMicroservice, DateTime dateTime) {
         this.deliveryRepository = deliveryRepository;
         this.workspaceMicroservice = workspaceMicroservice;
         this.managerMicroservice = managerMicroservice;
@@ -35,14 +35,9 @@ public final class DeliveryCreator implements CommandUseCase<CreateDeliveryComma
 
         verifyManagerBelongsToMunicipality(managerCode, municipalityCode);
 
-        Delivery delivery = Delivery.create(
-                DeliveryCode.fromValue(generateDeliveryCode()),
-                defineManager(managerCode),
-                defineLocality(municipalityCode),
-                DeliveryObservations.fromValue(command.observations()),
-                userCode,
-                dateTime
-        );
+        Delivery delivery = Delivery.create(DeliveryCode.fromValue(generateDeliveryCode()), defineManager(managerCode),
+                defineLocality(municipalityCode), DeliveryObservations.fromValue(command.observations()), userCode,
+                dateTime, DeliveryType.fromValue(command.type().name()));
 
         deliveryRepository.save(delivery);
     }
@@ -58,26 +53,20 @@ public final class DeliveryCreator implements CommandUseCase<CreateDeliveryComma
 
         ManagerName managerName = managerMicroservice.getManagerName(managerCode);
 
-        return DeliveryManager.builder()
-                .code(managerCode)
-                .name(managerName)
-                .build();
+        return DeliveryManager.builder().code(managerCode).name(managerName).build();
     }
 
     private DeliveryLocality defineLocality(MunicipalityCode municipalityCode) {
 
-        DepartmentMunicipality departmentMunicipality = workspaceMicroservice.getDepartmentMunicipalityName(municipalityCode);
+        DepartmentMunicipality departmentMunicipality = workspaceMicroservice
+                .getDepartmentMunicipalityName(municipalityCode);
 
-        return DeliveryLocality.builder()
-                .code(municipalityCode)
-                .municipality(departmentMunicipality.municipality())
-                .department(departmentMunicipality.department())
-                .build();
+        return DeliveryLocality.builder().code(municipalityCode).municipality(departmentMunicipality.municipality())
+                .department(departmentMunicipality.department()).build();
     }
 
     private String generateDeliveryCode() {
         return RandomStringUtils.random(6, false, true);
     }
-
 
 }

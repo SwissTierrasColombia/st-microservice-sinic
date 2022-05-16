@@ -12,7 +12,8 @@ public final class FileVersion {
     }
 
     private void ensureVersion(String value) {
-        if (value == null || value.isEmpty()) throw new FileVersionInvalid(value);
+        if (value == null || value.isEmpty())
+            throw new FileVersionInvalid(value);
     }
 
     public String value() {

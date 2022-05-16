@@ -40,19 +40,13 @@ public final class DeliveryUpdater implements CommandUseCase<DeliveryUpdaterComm
 
         // verify status of the delivery
         if (!delivery.isDraft()) {
-            throw new UnauthorizedToModifyDelivery("No se puede actualizar la entrega, porque la entrega no es un borrador.");
+            throw new UnauthorizedToModifyDelivery(
+                    "No se puede actualizar la entrega, porque la entrega no es un borrador.");
         }
 
-        deliveryRepository.update(Delivery.create(
-                delivery.id(),
-                delivery.code(),
-                delivery.date(),
-                delivery.dateStatus(),
-                delivery.manager(),
-                delivery.locality(),
-                observations,
-                delivery.user()
-        ));
+        deliveryRepository
+                .update(Delivery.create(delivery.id(), delivery.code(), delivery.date(), delivery.dateStatus(),
+                        delivery.manager(), delivery.locality(), observations, delivery.user(), delivery.type()));
 
     }
 

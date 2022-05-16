@@ -3,6 +3,7 @@ package com.ai.st.microservice.sinic.entrypoints.events.files;
 import com.ai.st.microservice.common.dto.ili.MicroserviceResultSinicImportFile;
 import com.ai.st.microservice.sinic.modules.files.application.update_file_status.FileStatusUpdater;
 import com.ai.st.microservice.sinic.modules.files.application.update_file_status.FileStatusUpdaterCommand;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.SCMTracing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -34,25 +35,29 @@ public final class UpdateStatusXTFOnSinicStatusImportChanged {
 
                 FileStatusUpdaterCommand.Status status = mappingEnum(resultImportData.getResult());
 
-                fileStatusUpdater.handle(new FileStatusUpdaterCommand(status, fileId, null));
+                fileStatusUpdater.handle(new FileStatusUpdaterCommand(status, fileId, null, null));
             }
 
         } catch (Exception e) {
-            log.error("Error actualizando el estado del archivo xtf: " + e.getMessage());
+            String messageError = String.format(
+                    "Error actualizando el estado del archivo %s durante la importación: %s",
+                    resultImportData.getReference(), e.getMessage());
+            SCMTracing.sendError(messageError);
+            log.error(messageError);
         }
 
     }
 
     private FileStatusUpdaterCommand.Status mappingEnum(MicroserviceResultSinicImportFile.Status status) {
         switch (status) {
-            case IMPORTING:
-                return FileStatusUpdaterCommand.Status.IMPORTING;
-            case SUCCESS_IMPORT:
-                return FileStatusUpdaterCommand.Status.IMPORT_SUCCESSFUL;
-            case FAILED_IMPORT:
-                return FileStatusUpdaterCommand.Status.IMPORT_UNSUCCESSFUL;
-            default:
-                throw new RuntimeException("Error mapping enum");
+        case IMPORTING:
+            return FileStatusUpdaterCommand.Status.IMPORTING;
+        case SUCCESS_IMPORT:
+            return FileStatusUpdaterCommand.Status.IMPORT_SUCCESSFUL;
+        case FAILED_IMPORT:
+            return FileStatusUpdaterCommand.Status.IMPORT_UNSUCCESSFUL;
+        default:
+            throw new RuntimeException("Error mapping enum");
         }
     }
 

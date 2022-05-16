@@ -63,7 +63,8 @@ public final class FileRemover implements CommandUseCase<FileRemoverCommand> {
 
         // verify status of the delivery
         if (!delivery.isDraft()) {
-            throw new UnauthorizedToModifyDelivery("No se puede eliminar el archivo, porque la entrega no es un borrador.");
+            throw new UnauthorizedToModifyDelivery(
+                    "No se puede eliminar el archivo, porque la entrega no es un borrador.");
         }
 
         // verify attachment belong to delivery product

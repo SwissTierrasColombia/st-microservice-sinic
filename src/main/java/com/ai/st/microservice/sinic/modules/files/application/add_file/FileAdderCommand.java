@@ -11,7 +11,8 @@ public final class FileAdderCommand implements Command {
     private final byte[] bytes;
     private final String extension;
 
-    public FileAdderCommand(Long deliveryId, Long managerCode, Long userCode, String observations, byte[] bytes, String extension) {
+    public FileAdderCommand(Long deliveryId, Long managerCode, Long userCode, String observations, byte[] bytes,
+            String extension) {
         this.deliveryId = deliveryId;
         this.managerCode = managerCode;
         this.userCode = userCode;

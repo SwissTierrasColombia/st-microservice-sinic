@@ -12,7 +12,8 @@ public final class DeliveryCode {
     }
 
     private void ensureCode(String value) {
-        if (value == null || value.isEmpty()) throw new DeliveryCodeInvalid(value);
+        if (value == null || value.isEmpty())
+            throw new DeliveryCodeInvalid(value);
     }
 
     public static DeliveryCode fromValue(String value) {
