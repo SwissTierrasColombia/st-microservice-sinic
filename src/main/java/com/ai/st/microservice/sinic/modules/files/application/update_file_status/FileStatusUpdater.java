@@ -23,7 +23,7 @@ public final class FileStatusUpdater implements CommandUseCase<FileStatusUpdater
     private final DeliveryStatusNotifier deliveryStatusNotifier;
 
     public FileStatusUpdater(DeliveryRepository deliveryRepository, FileRepository fileRepository,
-                             FileStatusNotifier fileStatusNotifier, DeliveryStatusNotifier deliveryStatusNotifier) {
+            FileStatusNotifier fileStatusNotifier, DeliveryStatusNotifier deliveryStatusNotifier) {
         this.deliveryRepository = deliveryRepository;
         this.fileRepository = fileRepository;
         this.fileStatusNotifier = fileStatusNotifier;
@@ -82,10 +82,13 @@ public final class FileStatusUpdater implements CommandUseCase<FileStatusUpdater
                 int totalImportUnsuccessful = (int) files.stream().filter(File::importUnSuccessful).count();
 
                 if (totalImportSuccessful == totalFiles) {
-                    deliveryRepository.changeStatus(deliveryId, new DeliveryStatus(DeliveryStatus.Status.SUCCESS_IMPORT));
-                    sendDeliveryNotification(deliveryId, DeliveryStatusNotifierCommand.StatusDelivery.IMPORT_SUCCESSFUL);
+                    deliveryRepository.changeStatus(deliveryId,
+                            new DeliveryStatus(DeliveryStatus.Status.SUCCESS_IMPORT));
+                    sendDeliveryNotification(deliveryId,
+                            DeliveryStatusNotifierCommand.StatusDelivery.IMPORT_SUCCESSFUL);
                 } else if (totalImportUnsuccessful > 0) {
-                    deliveryRepository.changeStatus(deliveryId, new DeliveryStatus(DeliveryStatus.Status.FAILED_IMPORT));
+                    deliveryRepository.changeStatus(deliveryId,
+                            new DeliveryStatus(DeliveryStatus.Status.FAILED_IMPORT));
                 } else if (totalImporting > 0) {
                     deliveryRepository.changeStatus(deliveryId, new DeliveryStatus(DeliveryStatus.Status.IMPORTING));
                 }
@@ -115,12 +118,7 @@ public final class FileStatusUpdater implements CommandUseCase<FileStatusUpdater
                 fileStatus = FileStatusNotifierCommand.StatusFile.REJECTED;
             }
 
-            fileStatusNotifier.handle(new FileStatusNotifierCommand(
-                    fileStatus,
-                    department,
-                    municipality,
-                    userCode
-            ));
+            fileStatusNotifier.handle(new FileStatusNotifierCommand(fileStatus, department, municipality, userCode));
 
         }
     }
@@ -132,14 +130,9 @@ public final class FileStatusUpdater implements CommandUseCase<FileStatusUpdater
         String department = delivery.locality().department().value();
         String municipality = delivery.locality().municipality().value();
 
-        deliveryStatusNotifier.handle(new DeliveryStatusNotifierCommand(
-                status,
-                municipality,
-                department,
-                delivery.manager().code().value()
-        ));
+        deliveryStatusNotifier.handle(
+                new DeliveryStatusNotifierCommand(status, municipality, department, delivery.manager().code().value()));
 
     }
-
 
 }

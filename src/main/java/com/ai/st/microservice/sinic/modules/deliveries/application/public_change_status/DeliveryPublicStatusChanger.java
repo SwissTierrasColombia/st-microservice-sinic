@@ -38,33 +38,36 @@ public class DeliveryPublicStatusChanger implements CommandUseCase<DeliveryPubli
         }
 
         if (!delivery.isFlat()) {
-            throw new UnauthorizedToChangeDeliveryStatus("No es posible cambiar el estado para las entregas de tipo Archivos Planos");
+            throw new UnauthorizedToChangeDeliveryStatus(
+                    "No es posible cambiar el estado para las entregas de tipo Archivos Planos");
         }
 
         boolean isValid;
         switch (status.value()) {
-            case SENT_CADASTRAL_AUTHORITY:
-                isValid = delivery.status().isPossibleToChangeStatusToSendCadastralAuthority();
-                break;
-            case IN_QUEUE_TO_IMPORT:
-                isValid = delivery.status().isPossibleToChangeStatusToInQueueToImport();
-                break;
-            case IMPORTING:
-                isValid = delivery.status().isPossibleToChangeStatusToImporting();
-                break;
-            case SUCCESS_IMPORT:
-                isValid = delivery.status().isPossibleToChangeStatusToSuccessImport();
-                break;
-            case FAILED_IMPORT:
-                isValid = delivery.status().isPossibleToChangeStatusToFailedImport();
-                break;
-            default:
-                throw new UnauthorizedToChangeDeliveryStatus("No se puede cambiar el estado de la entrega a " + status.value().name());
+        case SENT_CADASTRAL_AUTHORITY:
+            isValid = delivery.status().isPossibleToChangeStatusToSendCadastralAuthority();
+            break;
+        case IN_QUEUE_TO_IMPORT:
+            isValid = delivery.status().isPossibleToChangeStatusToInQueueToImport();
+            break;
+        case IMPORTING:
+            isValid = delivery.status().isPossibleToChangeStatusToImporting();
+            break;
+        case SUCCESS_IMPORT:
+            isValid = delivery.status().isPossibleToChangeStatusToSuccessImport();
+            break;
+        case FAILED_IMPORT:
+            isValid = delivery.status().isPossibleToChangeStatusToFailedImport();
+            break;
+        default:
+            throw new UnauthorizedToChangeDeliveryStatus(
+                    "No se puede cambiar el estado de la entrega a " + status.value().name());
         }
 
         if (!isValid) {
-            throw new UnauthorizedToChangeDeliveryStatus(String.format("No se puede cambiar el estado de la entrega de %s a %s para la entrega %s",
-                    delivery.status().value().name(), status.value().name(), deliveryId.value()));
+            throw new UnauthorizedToChangeDeliveryStatus(
+                    String.format("No se puede cambiar el estado de la entrega de %s a %s para la entrega %s",
+                            delivery.status().value().name(), status.value().name(), deliveryId.value()));
         }
 
     }

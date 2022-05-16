@@ -2,6 +2,7 @@ package com.ai.st.microservice.sinic.modules.shared.infrastructure.compressor;
 
 import com.ai.st.microservice.sinic.modules.shared.domain.contracts.CompressorFile;
 import com.ai.st.microservice.sinic.modules.shared.domain.exceptions.CompressError;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.SCMTracing;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,10 @@ public final class ZIPCompressorFile implements CompressorFile {
             }
             zipFile.close();
         } catch (IOException e) {
+            String messageError = String
+                    .format("Error leyendo el archivo zip para obtener la cantidad de archivos : %s", e.getMessage());
+            SCMTracing.sendError(messageError);
+            log.error(messageError);
             throw new CompressError("Ha ocurrido un error leyendo el archivo zip.");
         }
         return count;
@@ -51,6 +56,10 @@ public final class ZIPCompressorFile implements CompressorFile {
             }
             zipFile.close();
         } catch (IOException e) {
+            String messageError = String
+                    .format("Error leyendo el archivo zip para verificar si contiene un archivo : %s", e.getMessage());
+            SCMTracing.sendError(messageError);
+            log.error(messageError);
             throw new CompressError("Ha ocurrido un error leyendo el archivo zip.");
         }
         return false;
@@ -94,10 +103,11 @@ public final class ZIPCompressorFile implements CompressorFile {
             return path;
 
         } catch (Exception e) {
-            log.error("Error zipping file: " + e.getMessage());
+            String messageError = String.format("Error comprimiendo y creando el archivo zip : %s", e.getMessage());
+            SCMTracing.sendError(messageError);
+            log.error(messageError);
             throw new CompressError("Ha ocurrido un error creando el archivo zip.");
         }
     }
-
 
 }

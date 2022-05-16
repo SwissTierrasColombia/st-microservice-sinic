@@ -30,14 +30,11 @@ public final class PostgresDeliveryRepository implements DeliveryRepository {
 
     private final DeliveryJPARepository deliveryJPARepository;
 
-    public static final Map<String, String> MAPPING_FIELDS = new HashMap<>(
-            Map.ofEntries(
-                    new AbstractMap.SimpleEntry<>("deliveryDate", "createdAt"),
-                    new AbstractMap.SimpleEntry<>("deliveryStatus", "status"),
-                    new AbstractMap.SimpleEntry<>("manager", "managerCode"),
-                    new AbstractMap.SimpleEntry<>("code", "code"),
-                    new AbstractMap.SimpleEntry<>("municipality", "municipalityCode")
-            ));
+    public static final Map<String, String> MAPPING_FIELDS = new HashMap<>(Map.ofEntries(
+            new AbstractMap.SimpleEntry<>("deliveryDate", "createdAt"),
+            new AbstractMap.SimpleEntry<>("deliveryStatus", "status"),
+            new AbstractMap.SimpleEntry<>("manager", "managerCode"), new AbstractMap.SimpleEntry<>("code", "code"),
+            new AbstractMap.SimpleEntry<>("municipality", "municipalityCode")));
 
     public PostgresDeliveryRepository(DeliveryJPARepository deliveryJPARepository) {
         this.deliveryJPARepository = deliveryJPARepository;
@@ -72,29 +69,29 @@ public final class PostgresDeliveryRepository implements DeliveryRepository {
 
     private DeliveryStatusEnum mappingEnum(DeliveryStatus status) {
         switch (status.value()) {
-            case SENT_CADASTRAL_AUTHORITY:
-                return DeliveryStatusEnum.SENT_CADASTRAL_AUTHORITY;
-            case IN_QUEUE_TO_IMPORT:
-                return DeliveryStatusEnum.IN_QUEUE_TO_IMPORT;
-            case IMPORTING:
-                return DeliveryStatusEnum.IMPORTING;
-            case SUCCESS_IMPORT:
-                return DeliveryStatusEnum.SUCCESS_IMPORT;
-            case FAILED_IMPORT:
-                return DeliveryStatusEnum.FAILED_IMPORT;
-            case DRAFT:
-            default:
-                return DeliveryStatusEnum.DRAFT;
+        case SENT_CADASTRAL_AUTHORITY:
+            return DeliveryStatusEnum.SENT_CADASTRAL_AUTHORITY;
+        case IN_QUEUE_TO_IMPORT:
+            return DeliveryStatusEnum.IN_QUEUE_TO_IMPORT;
+        case IMPORTING:
+            return DeliveryStatusEnum.IMPORTING;
+        case SUCCESS_IMPORT:
+            return DeliveryStatusEnum.SUCCESS_IMPORT;
+        case FAILED_IMPORT:
+            return DeliveryStatusEnum.FAILED_IMPORT;
+        case DRAFT:
+        default:
+            return DeliveryStatusEnum.DRAFT;
         }
     }
 
     private DeliveryTypeEnum mappingTypeEnum(DeliveryType type) {
         switch (type.value()) {
-            case FLAT:
-                return DeliveryTypeEnum.FLAT;
-            case XTF:
-            default:
-                return DeliveryTypeEnum.XTF;
+        case FLAT:
+            return DeliveryTypeEnum.FLAT;
+        case XTF:
+        default:
+            return DeliveryTypeEnum.XTF;
         }
     }
 
@@ -137,14 +134,11 @@ public final class PostgresDeliveryRepository implements DeliveryRepository {
 
         List<Delivery> deliveries = deliveryEntities.stream().map(this::mapping).collect(Collectors.toList());
 
-        return new PageableDomain<>(
-                deliveries,
-                page != null ? Optional.of(page.getNumber() + 1) : Optional.empty(),
+        return new PageableDomain<>(deliveries, page != null ? Optional.of(page.getNumber() + 1) : Optional.empty(),
                 page != null ? Optional.of(page.getNumberOfElements()) : Optional.empty(),
                 page != null ? Optional.of(page.getTotalElements()) : Optional.empty(),
                 page != null ? Optional.of(page.getTotalPages()) : Optional.empty(),
-                page != null ? Optional.of(page.getSize()) : Optional.empty()
-        );
+                page != null ? Optional.of(page.getSize()) : Optional.empty());
     }
 
     @Override
@@ -204,19 +198,19 @@ public final class PostgresDeliveryRepository implements DeliveryRepository {
     private Specification<DeliveryEntity> createSpecification(Filter filter) {
         try {
             switch (filter.operator()) {
-                case EQUAL:
-                    return (root, query, criteriaBuilder) ->
-                            criteriaBuilder.equal(buildPath(root, filter.field().value()), filter.value().value());
-                case NOT_EQUAL:
-                    return (root, query, criteriaBuilder) ->
-                            criteriaBuilder.notEqual(buildPath(root, filter.field().value()), filter.value().value());
-                case CONTAINS:
-                    return (root, query, criteriaBuilder) -> {
-                        List<String> list = filter.values().stream().map(FilterValue::value).collect(Collectors.toList());
-                        return buildPath(root, filter.field().value()).as(String.class).in(list);
-                    };
-                default:
-                    throw new OperatorUnsupported();
+            case EQUAL:
+                return (root, query, criteriaBuilder) -> criteriaBuilder.equal(buildPath(root, filter.field().value()),
+                        filter.value().value());
+            case NOT_EQUAL:
+                return (root, query, criteriaBuilder) -> criteriaBuilder
+                        .notEqual(buildPath(root, filter.field().value()), filter.value().value());
+            case CONTAINS:
+                return (root, query, criteriaBuilder) -> {
+                    List<String> list = filter.values().stream().map(FilterValue::value).collect(Collectors.toList());
+                    return buildPath(root, filter.field().value()).as(String.class).in(list);
+                };
+            default:
+                throw new OperatorUnsupported();
             }
         } catch (Exception e) {
             throw new FieldUnsupported();
@@ -233,21 +227,11 @@ public final class PostgresDeliveryRepository implements DeliveryRepository {
     }
 
     private Delivery mapping(DeliveryEntity deliveryEntity) {
-        return Delivery.fromPrimitives(
-                deliveryEntity.getId(),
-                deliveryEntity.getCode(),
-                deliveryEntity.getCreatedAt(),
-                deliveryEntity.getDateStatusAt(),
-                deliveryEntity.getManagerCode(),
-                deliveryEntity.getManagerName(),
-                deliveryEntity.getDepartmentName(),
-                deliveryEntity.getMunicipalityName(),
-                deliveryEntity.getMunicipalityCode(),
-                deliveryEntity.getObservations(),
-                deliveryEntity.getStatus().name(),
-                deliveryEntity.getUserCode(),
-                deliveryEntity.getType().name()
-        );
+        return Delivery.fromPrimitives(deliveryEntity.getId(), deliveryEntity.getCode(), deliveryEntity.getCreatedAt(),
+                deliveryEntity.getDateStatusAt(), deliveryEntity.getManagerCode(), deliveryEntity.getManagerName(),
+                deliveryEntity.getDepartmentName(), deliveryEntity.getMunicipalityName(),
+                deliveryEntity.getMunicipalityCode(), deliveryEntity.getObservations(),
+                deliveryEntity.getStatus().name(), deliveryEntity.getUserCode(), deliveryEntity.getType().name());
     }
 
 }

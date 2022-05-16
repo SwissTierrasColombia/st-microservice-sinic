@@ -14,11 +14,10 @@ import org.thymeleaf.templatemode.TemplateMode;
 
 @SpringBootApplication
 @EnableAutoConfiguration
-@EnableFeignClients(basePackages = {"com.ai.st.microservice.common.clients"})
+@EnableFeignClients(basePackages = { "com.ai.st.microservice.common.clients" })
 @EnableEurekaClient
-@ComponentScan(value = {"com.ai.st.microservice.common.business", "com.ai.st.microservice.sinic"},
-        includeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = Service.class)
-)
+@ComponentScan(value = { "com.ai.st.microservice.common.business",
+        "com.ai.st.microservice.sinic" }, includeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = Service.class))
 public class StMicroserviceSinicApplication {
 
     public static void main(String[] args) {
@@ -26,7 +25,7 @@ public class StMicroserviceSinicApplication {
     }
 
     @Bean
-    public SpringResourceTemplateResolver templateResolver(){
+    public SpringResourceTemplateResolver templateResolver() {
         SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
         templateResolver.setPrefix("classpath:/templates/");
         templateResolver.setSuffix(".html");

@@ -24,8 +24,8 @@ public final class PostgresFileRepository implements FileRepository {
     public List<File> findByDeliveryId(DeliveryId deliveryId) {
         DeliveryEntity deliveryEntity = new DeliveryEntity();
         deliveryEntity.setId(deliveryId.value());
-        return fileJPARepository.findByDelivery(deliveryEntity)
-                .stream().map(this::mapping).collect(Collectors.toList());
+        return fileJPARepository.findByDelivery(deliveryEntity).stream().map(this::mapping)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -95,37 +95,27 @@ public final class PostgresFileRepository implements FileRepository {
 
     private FileStatusEnum mappingEnum(FileStatus status) {
         switch (status.value()) {
-            case SUCCESSFUL:
-                return FileStatusEnum.SUCCESSFUL;
-            case UNSUCCESSFUL:
-                return FileStatusEnum.UNSUCCESSFUL;
-            case IMPORTING:
-                return FileStatusEnum.IMPORTING;
-            case IMPORT_SUCCESSFUL:
-                return FileStatusEnum.IMPORT_SUCCESSFUL;
-            case IMPORT_UNSUCCESSFUL:
-                return FileStatusEnum.IMPORT_UNSUCCESSFUL;
-            case IN_VALIDATION:
-            default:
-                return FileStatusEnum.IN_VALIDATION;
+        case SUCCESSFUL:
+            return FileStatusEnum.SUCCESSFUL;
+        case UNSUCCESSFUL:
+            return FileStatusEnum.UNSUCCESSFUL;
+        case IMPORTING:
+            return FileStatusEnum.IMPORTING;
+        case IMPORT_SUCCESSFUL:
+            return FileStatusEnum.IMPORT_SUCCESSFUL;
+        case IMPORT_UNSUCCESSFUL:
+            return FileStatusEnum.IMPORT_UNSUCCESSFUL;
+        case IN_VALIDATION:
+        default:
+            return FileStatusEnum.IN_VALIDATION;
         }
     }
 
     private File mapping(FileEntity fileEntity) {
-        return File.fromPrimitives(
-                fileEntity.getId(),
-                fileEntity.getUuid(),
-                fileEntity.getCreatedAt(),
-                fileEntity.getDateStatusAt(),
-                fileEntity.getValid(),
-                fileEntity.getObservations(),
-                fileEntity.getStatus().name(),
-                fileEntity.getUrl(),
-                fileEntity.getVersion(),
-                fileEntity.getLog(),
-                fileEntity.getUserCode(),
-                fileEntity.getDelivery().getId()
-        );
+        return File.fromPrimitives(fileEntity.getId(), fileEntity.getUuid(), fileEntity.getCreatedAt(),
+                fileEntity.getDateStatusAt(), fileEntity.getValid(), fileEntity.getObservations(),
+                fileEntity.getStatus().name(), fileEntity.getUrl(), fileEntity.getVersion(), fileEntity.getLog(),
+                fileEntity.getUserCode(), fileEntity.getDelivery().getId());
     }
 
 }

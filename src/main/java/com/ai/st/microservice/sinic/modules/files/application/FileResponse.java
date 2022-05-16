@@ -17,7 +17,8 @@ public final class FileResponse implements Response {
     private final String version;
     private final Long deliveryId;
 
-    public FileResponse(Long id, Date date, Date dateStatus, Boolean isValid, boolean hasLog, String observations, String status, String version, Long deliveryId) {
+    public FileResponse(Long id, Date date, Date dateStatus, Boolean isValid, boolean hasLog, String observations,
+            String status, String version, Long deliveryId) {
         this.id = id;
         this.date = date;
         this.dateStatus = dateStatus;
@@ -30,17 +31,9 @@ public final class FileResponse implements Response {
     }
 
     public static FileResponse fromAggregate(File file) {
-        return new FileResponse(
-                file.id().value(),
-                file.date().value(),
-                file.dateStatus().value(),
-                file.valid().value(),
-                file.hasLog(),
-                file.observations().value(),
-                file.status().value().name(),
-                file.version().value(),
-                file.deliveryId().value()
-        );
+        return new FileResponse(file.id().value(), file.date().value(), file.dateStatus().value(), file.valid().value(),
+                file.hasLog(), file.observations().value(), file.status().value().name(), file.version().value(),
+                file.deliveryId().value());
     }
 
     public Long id() {

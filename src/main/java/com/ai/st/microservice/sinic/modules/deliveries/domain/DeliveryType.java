@@ -7,8 +7,7 @@ public final class DeliveryType {
     private final Type value;
 
     public enum Type {
-        XTF,
-        FLAT
+        XTF, FLAT
     }
 
     public DeliveryType(Type value) {
@@ -18,17 +17,18 @@ public final class DeliveryType {
 
     public static DeliveryType fromValue(String value) {
         switch (value) {
-            case "XTF":
-                return new DeliveryType(Type.XTF);
-            case "FLAT":
-                return new DeliveryType(Type.FLAT);
-            default:
-                throw new DeliveryTypeInvalid(value);
+        case "XTF":
+            return new DeliveryType(Type.XTF);
+        case "FLAT":
+            return new DeliveryType(Type.FLAT);
+        default:
+            throw new DeliveryTypeInvalid(value);
         }
     }
 
     private void ensureType(Type value) {
-        if (value == null) throw new DeliveryTypeInvalid("N/A");
+        if (value == null)
+            throw new DeliveryTypeInvalid("N/A");
     }
 
     public Type value() {

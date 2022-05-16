@@ -10,6 +10,8 @@ import com.ai.st.microservice.sinic.modules.files.application.add_file.FileAdder
 import com.ai.st.microservice.sinic.modules.shared.domain.DomainError;
 import com.ai.st.microservice.sinic.modules.shared.domain.contracts.CompressorFile;
 import com.ai.st.microservice.sinic.modules.shared.domain.contracts.StoreFile;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.SCMTracing;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.TracingKeyword;
 import io.swagger.annotations.*;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -23,7 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Objects;
 
-@Api(value = "Manage Files", tags = {"Files"})
+@Api(value = "Manage Files", tags = { "Files" })
 @RestController
 public final class FilePostController extends ApiController {
 
@@ -33,7 +35,8 @@ public final class FilePostController extends ApiController {
     private final StoreFile storeFile;
     private final CompressorFile compressorFile;
 
-    public FilePostController(AdministrationBusiness administrationBusiness, ManagerBusiness managerBusiness, FileAdder fileAdder, StoreFile storeFile, CompressorFile compressorFile) {
+    public FilePostController(AdministrationBusiness administrationBusiness, ManagerBusiness managerBusiness,
+            FileAdder fileAdder, StoreFile storeFile, CompressorFile compressorFile) {
         super(administrationBusiness, managerBusiness);
         this.fileAdder = fileAdder;
         this.storeFile = storeFile;
@@ -42,19 +45,20 @@ public final class FilePostController extends ApiController {
 
     @PostMapping(value = "api/sinic/v1/deliveries/{deliveryId}/files", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Add file to delivery")
-    @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "File added"),
-            @ApiResponse(code = 500, message = "Error Server", response = String.class)})
+    @ApiResponses(value = { @ApiResponse(code = 201, message = "File added"),
+            @ApiResponse(code = 500, message = "Error Server", response = String.class) })
     @ResponseBody
-    public ResponseEntity<?> addFileToDelivery(
-            @PathVariable Long deliveryId,
-            @ModelAttribute AddFileToDelivery request,
+    public ResponseEntity<?> addFileToDelivery(@PathVariable Long deliveryId, @ModelAttribute AddFileToDelivery request,
             @RequestHeader("authorization") String headerAuthorization) {
 
         HttpStatus httpStatus;
         Object responseDto = null;
 
         try {
+
+            SCMTracing.setTransactionName("addFileToDelivery");
+            SCMTracing.addCustomParameter(TracingKeyword.AUTHORIZATION_HEADER, headerAuthorization);
+            SCMTracing.addCustomParameter(TracingKeyword.BODY_REQUEST, request.toString());
 
             InformationSession session = this.getInformationSession(headerAuthorization);
 
@@ -65,21 +69,25 @@ public final class FilePostController extends ApiController {
             validateDeliveryId(deliveryId);
             validateObservations(request.getObservations());
 
-            fileAdder.handle(validateFileAndCreateCommand(deliveryId, session.entityCode(), session.userCode(), request));
+            fileAdder.handle(
+                    validateFileAndCreateCommand(deliveryId, session.entityCode(), session.userCode(), request));
             httpStatus = HttpStatus.OK;
 
         } catch (InputValidationException e) {
             log.error("Error FilePostController@addFileToDelivery#Validation ---> " + e.getMessage());
             httpStatus = HttpStatus.BAD_REQUEST;
-            responseDto = new BasicResponseDto(e.getMessage(), 1);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (DomainError e) {
             log.error("Error FilePostController@addFileToDelivery#Domain ---> " + e.errorMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-            responseDto = new BasicResponseDto(e.errorMessage(), 2);
+            responseDto = new BasicResponseDto(e.errorMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
             log.error("Error FilePostController@addFileToDelivery#General ---> " + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            responseDto = new BasicResponseDto(e.getMessage(), 3);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(responseDto, httpStatus);
@@ -97,8 +105,8 @@ public final class FilePostController extends ApiController {
         }
     }
 
-    private FileAdderCommand validateFileAndCreateCommand(Long deliveryId, Long managerCode, Long userCode, AddFileToDelivery request)
-            throws InputValidationException, IOException {
+    private FileAdderCommand validateFileAndCreateCommand(Long deliveryId, Long managerCode, Long userCode,
+            AddFileToDelivery request) throws InputValidationException, IOException {
 
         MultipartFile file = request.getAttachment();
         if (file == null) {
@@ -123,8 +131,8 @@ public final class FilePostController extends ApiController {
 
         storeFile.deleteFile(temporalFilePath);
 
-        return new FileAdderCommand(
-                deliveryId, managerCode, userCode, request.getObservations(), file.getBytes(), extension);
+        return new FileAdderCommand(deliveryId, managerCode, userCode, request.getObservations(), file.getBytes(),
+                extension);
     }
 
 }
@@ -152,5 +160,10 @@ final class AddFileToDelivery {
 
     public void setAttachment(MultipartFile attachment) {
         this.attachment = attachment;
+    }
+
+    @Override
+    public String toString() {
+        return "AddFileToDelivery{" + "observations='" + observations + '\'' + '}';
     }
 }

@@ -11,6 +11,8 @@ import com.ai.st.microservice.sinic.modules.deliveries.application.send_delivery
 import com.ai.st.microservice.sinic.modules.deliveries.application.send_delivery_to_cadastral_authority.DeliveryToCadastralAuthoritySenderCommand;
 import com.ai.st.microservice.sinic.modules.shared.domain.DomainError;
 import com.ai.st.microservice.sinic.modules.shared.infrastructure.crypto.CryptoService;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.SCMTracing;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.TracingKeyword;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Api(value = "Manage Deliveries", tags = {"Deliveries"})
+@Api(value = "Manage Deliveries", tags = { "Deliveries" })
 @RestController
 public final class DeliveryPatchController extends ApiController {
 
@@ -30,8 +32,8 @@ public final class DeliveryPatchController extends ApiController {
     private final CryptoService crypto;
 
     public DeliveryPatchController(AdministrationBusiness administrationBusiness, ManagerBusiness managerBusiness,
-                                   DeliveryToCadastralAuthoritySender cadastralAuthoritySender,
-                                   DeliveryPublicStatusChanger deliveryPublicStatusChanger, CryptoService crypto) {
+            DeliveryToCadastralAuthoritySender cadastralAuthoritySender,
+            DeliveryPublicStatusChanger deliveryPublicStatusChanger, CryptoService crypto) {
         super(administrationBusiness, managerBusiness);
         this.cadastralAuthoritySender = cadastralAuthoritySender;
         this.deliveryPublicStatusChanger = deliveryPublicStatusChanger;
@@ -40,18 +42,19 @@ public final class DeliveryPatchController extends ApiController {
 
     @PatchMapping(value = "api/sinic/v1/deliveries/{deliveryId}/status/delivered", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Change status to delivered")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Status changed to sent to cadastral authority"),
-            @ApiResponse(code = 500, message = "Error Server", response = String.class)})
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Status changed to sent to cadastral authority"),
+            @ApiResponse(code = 500, message = "Error Server", response = String.class) })
     @ResponseBody
-    public ResponseEntity<?> changeStatusToSentToCadastalAuthority(
-            @PathVariable Long deliveryId,
+    public ResponseEntity<?> changeStatusToSentToCadastalAuthority(@PathVariable Long deliveryId,
             @RequestHeader("authorization") String headerAuthorization) {
 
         HttpStatus httpStatus;
         Object responseDto = null;
 
         try {
+
+            SCMTracing.setTransactionName("changeStatusToSentToCadastalAuthority");
+            SCMTracing.addCustomParameter(TracingKeyword.AUTHORIZATION_HEADER, headerAuthorization);
 
             InformationSession session = this.getInformationSession(headerAuthorization);
 
@@ -61,25 +64,29 @@ public final class DeliveryPatchController extends ApiController {
 
             validateDeliveryId(deliveryId);
 
-            cadastralAuthoritySender.handle(
-                    new DeliveryToCadastralAuthoritySenderCommand(
-                            deliveryId, session.entityCode()
-                    ));
+            cadastralAuthoritySender
+                    .handle(new DeliveryToCadastralAuthoritySenderCommand(deliveryId, session.entityCode()));
 
             httpStatus = HttpStatus.OK;
 
         } catch (InputValidationException e) {
-            log.error("Error DeliveryPatchController@changeStatusToSentToCadastalAuthority#Validation ---> " + e.getMessage());
+            log.error("Error DeliveryPatchController@changeStatusToSentToCadastalAuthority#Validation ---> "
+                    + e.getMessage());
             httpStatus = HttpStatus.BAD_REQUEST;
-            responseDto = new BasicResponseDto(e.getMessage(), 1);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (DomainError e) {
-            log.error("Error DeliveryPatchController@changeStatusToSentToCadastalAuthority#Domain ---> " + e.errorMessage());
+            log.error("Error DeliveryPatchController@changeStatusToSentToCadastalAuthority#Domain ---> "
+                    + e.errorMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-            responseDto = new BasicResponseDto(e.errorMessage(), 2);
+            responseDto = new BasicResponseDto(e.errorMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
-            log.error("Error DeliveryPatchController@changeStatusToSentToCadastalAuthority#General ---> " + e.getMessage());
+            log.error("Error DeliveryPatchController@changeStatusToSentToCadastalAuthority#General ---> "
+                    + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            responseDto = new BasicResponseDto(e.getMessage(), 3);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(responseDto, httpStatus);
@@ -87,12 +94,10 @@ public final class DeliveryPatchController extends ApiController {
 
     @PatchMapping(value = "api/sinic/v1/deliveries/{deliveryId}/status", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Change status to delivered")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Status changed"),
-            @ApiResponse(code = 500, message = "Error Server", response = String.class)})
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Status changed"),
+            @ApiResponse(code = 500, message = "Error Server", response = String.class) })
     @ResponseBody
-    public ResponseEntity<?> changeStatusToDelivery(
-            @PathVariable Long deliveryId,
+    public ResponseEntity<?> changeStatusToDelivery(@PathVariable Long deliveryId,
             @RequestBody ChangeDeliveryStatusRequest request,
             @RequestHeader("st-token") String stPublicTokenEncrypted) {
 
@@ -101,9 +106,14 @@ public final class DeliveryPatchController extends ApiController {
 
         try {
 
+            SCMTracing.setTransactionName("changeStatusToDelivery");
+            SCMTracing.addCustomParameter(TracingKeyword.ST_TOKEN, stPublicTokenEncrypted);
+            SCMTracing.addCustomParameter(TracingKeyword.BODY_REQUEST, request.toString());
+
             String token = crypto.decrypt(stPublicTokenEncrypted);
             if (!matchTokenIGAC(token)) {
-                throw new InputValidationException("El usuario no tiene permisos para actualizar el estado de la entrega.");
+                throw new InputValidationException(
+                        "El usuario no tiene permisos para actualizar el estado de la entrega.");
             }
 
             validateDeliveryId(deliveryId);
@@ -111,25 +121,26 @@ public final class DeliveryPatchController extends ApiController {
 
             log.info(String.format("Request to change status to %s for delivery %s", request.getStatus(), deliveryId));
 
-            deliveryPublicStatusChanger.handle(
-                    new DeliveryPublicStatusChangerCommand(
-                            deliveryId, DeliveryPublicStatusChangerCommand.Status.valueOf(request.getStatus())
-                    ));
+            deliveryPublicStatusChanger.handle(new DeliveryPublicStatusChangerCommand(deliveryId,
+                    DeliveryPublicStatusChangerCommand.Status.valueOf(request.getStatus())));
 
             httpStatus = HttpStatus.OK;
 
         } catch (InputValidationException e) {
             log.error("Error DeliveryPatchController@changeStatusToDelivery#Validation ---> " + e.getMessage());
             httpStatus = HttpStatus.BAD_REQUEST;
-            responseDto = new BasicResponseDto(e.getMessage(), 1);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (DomainError e) {
             log.error("Error DeliveryPatchController@changeStatusToDelivery#Domain ---> " + e.errorMessage());
             httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
-            responseDto = new BasicResponseDto(e.errorMessage(), 2);
+            responseDto = new BasicResponseDto(e.errorMessage());
+            SCMTracing.sendError(e.getMessage());
         } catch (Exception e) {
             log.error("Error DeliveryPatchController@changeStatusToDelivery#General ---> " + e.getMessage());
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-            responseDto = new BasicResponseDto(e.getMessage(), 3);
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
         }
 
         return new ResponseEntity<>(responseDto, httpStatus);
@@ -163,5 +174,10 @@ final class ChangeDeliveryStatusRequest {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return "ChangeDeliveryStatusRequest{" + "status='" + status + '\'' + '}';
     }
 }

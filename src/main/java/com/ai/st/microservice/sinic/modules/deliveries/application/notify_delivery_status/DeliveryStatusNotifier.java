@@ -22,7 +22,8 @@ public class DeliveryStatusNotifier implements CommandUseCase<DeliveryStatusNoti
     private final EmailTemplate template;
     private final NotifierMessageBroker notifierMessageBroker;
 
-    public DeliveryStatusNotifier(ManagerMicroservice managerMicroservice, EmailTemplate template, NotifierMessageBroker notifierMessageBroker) {
+    public DeliveryStatusNotifier(ManagerMicroservice managerMicroservice, EmailTemplate template,
+            NotifierMessageBroker notifierMessageBroker) {
         this.managerMicroservice = managerMicroservice;
         this.template = template;
         this.notifierMessageBroker = notifierMessageBroker;
@@ -43,7 +44,8 @@ public class DeliveryStatusNotifier implements CommandUseCase<DeliveryStatusNoti
             subject = SUBJECT_IMPORT_SUCCESSFUL;
         }
 
-        notifierMessageBroker.sendNotification(subject, template, userInformation.email().value(), userInformation.code().value());
+        notifierMessageBroker.sendNotification(subject, template, userInformation.email().value(),
+                userInformation.code().value());
     }
 
     private String createTemplate(DeliveryStatusNotifierCommand command) {

@@ -22,8 +22,9 @@ public final class File extends AggregateRoot {
     private final UserCode user;
     private final DeliveryId deliveryId;
 
-    public File(FileId id, FileUUID uuid, FileDate date, FileDateStatus dateStatus, FileValid valid, FileObservations observations,
-                FileStatus status, FileUrl url, FileVersion version, FileLog log, UserCode user, DeliveryId deliveryId) {
+    public File(FileId id, FileUUID uuid, FileDate date, FileDateStatus dateStatus, FileValid valid,
+            FileObservations observations, FileStatus status, FileUrl url, FileVersion version, FileLog log,
+            UserCode user, DeliveryId deliveryId) {
         this.id = id;
         this.uuid = uuid;
         this.date = date;
@@ -38,40 +39,19 @@ public final class File extends AggregateRoot {
         this.deliveryId = deliveryId;
     }
 
-    public static File create(FileUUID uuid, FileObservations observations, FileUrl url, FileVersion version, UserCode user, DeliveryId deliveryId,
-                              DateTime dateTime) {
-        return new File(
-                null,
-                uuid,
-                new FileDate(dateTime.now()),
-                new FileDateStatus(dateTime.now()),
-                null,
-                observations,
-                new FileStatus(FileStatus.Status.IN_VALIDATION),
-                url,
-                version,
-                null,
-                user,
-                deliveryId
-        );
+    public static File create(FileUUID uuid, FileObservations observations, FileUrl url, FileVersion version,
+            UserCode user, DeliveryId deliveryId, DateTime dateTime) {
+        return new File(null, uuid, new FileDate(dateTime.now()), new FileDateStatus(dateTime.now()), null,
+                observations, new FileStatus(FileStatus.Status.IN_VALIDATION), url, version, null, user, deliveryId);
     }
 
-    public static File fromPrimitives(Long id, String uuid, Date date, Date dateStatus, Boolean valid, String observations,
-                                      String status, String url, String version, String log, Long userCode, Long deliveryId) {
-        return new File(
-                FileId.fromValue(id),
-                new FileUUID(uuid),
-                new FileDate(date),
-                new FileDateStatus(dateStatus),
-                new FileValid(valid),
-                FileObservations.fromValue(observations),
-                FileStatus.fromValue(status),
-                new FileUrl(url),
-                new FileVersion(version),
-                FileLog.fromValue(log),
-                UserCode.fromValue(userCode),
-                DeliveryId.fromValue(deliveryId)
-        );
+    public static File fromPrimitives(Long id, String uuid, Date date, Date dateStatus, Boolean valid,
+            String observations, String status, String url, String version, String log, Long userCode,
+            Long deliveryId) {
+        return new File(FileId.fromValue(id), new FileUUID(uuid), new FileDate(date), new FileDateStatus(dateStatus),
+                new FileValid(valid), FileObservations.fromValue(observations), FileStatus.fromValue(status),
+                new FileUrl(url), new FileVersion(version), FileLog.fromValue(log), UserCode.fromValue(userCode),
+                DeliveryId.fromValue(deliveryId));
     }
 
     public boolean hasLog() {

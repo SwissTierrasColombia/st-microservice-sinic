@@ -27,7 +27,7 @@ public final class DeliveryRemover implements CommandUseCase<DeliveryRemoverComm
 
         verifyPermissions(deliveryId, managerCode);
 
-        //TODO: remove files from delivery
+        // TODO: remove files from delivery
 
         deliveryRepository.remove(deliveryId);
     }
@@ -47,7 +47,8 @@ public final class DeliveryRemover implements CommandUseCase<DeliveryRemoverComm
 
         // verify status of the delivery
         if (!delivery.isDraft()) {
-            throw new UnauthorizedToModifyDelivery("No se puede eliminar la entrega, porque la entrega no es borrador.");
+            throw new UnauthorizedToModifyDelivery(
+                    "No se puede eliminar la entrega, porque la entrega no es borrador.");
         }
 
     }

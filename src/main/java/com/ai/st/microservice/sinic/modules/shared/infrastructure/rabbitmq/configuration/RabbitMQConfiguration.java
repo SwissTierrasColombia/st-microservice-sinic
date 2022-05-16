@@ -85,8 +85,7 @@ public class RabbitMQConfiguration {
 
     @Bean
     public Binding bindingResultProcessSinicFilesName() {
-        return BindingBuilder.bind(queueResultProcessSinicFilesName())
-                .to(exchangeResultProcessSinicFilesName())
+        return BindingBuilder.bind(queueResultProcessSinicFilesName()).to(exchangeResultProcessSinicFilesName())
                 .with(queueResultProcessSinicFilesRoutingKey);
     }
 

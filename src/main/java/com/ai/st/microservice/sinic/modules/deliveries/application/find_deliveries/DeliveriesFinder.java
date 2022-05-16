@@ -36,13 +36,14 @@ public final class DeliveriesFinder implements QueryUseCase<DeliveriesFinderQuer
 
         List<Filter> filters = new ArrayList<>();
 
-        List<DeliveryStatus> defaultStatuses = (isCadastralAuthority(query.role())) ?
-                Delivery.statusesAllowedToCadastralAuthority() : Delivery.statusesAllowedToManager();
+        List<DeliveryStatus> defaultStatuses = (isCadastralAuthority(query.role()))
+                ? Delivery.statusesAllowedToCadastralAuthority() : Delivery.statusesAllowedToManager();
 
         if (!query.states().isEmpty()) {
             filters.add(filterByStatus(query.states(), defaultStatuses));
         } else {
-            filters.add(filterByStatus(defaultStatuses.stream().map(status -> status.value().name()).collect(Collectors.toList()),
+            filters.add(filterByStatus(
+                    defaultStatuses.stream().map(status -> status.value().name()).collect(Collectors.toList()),
                     defaultStatuses));
         }
 
@@ -65,12 +66,8 @@ public final class DeliveriesFinder implements QueryUseCase<DeliveriesFinderQuer
             filters.add(filterByManager(manager));
         }
 
-        Criteria criteria = new Criteria(
-                filters,
-                Order.fromValues(Optional.of("deliveryDate"), Optional.of("DESC")),
-                Optional.of(verifyPage(query.page())),
-                Optional.of(verifyLimit(query.limit()))
-        );
+        Criteria criteria = new Criteria(filters, Order.fromValues(Optional.of("deliveryDate"), Optional.of("DESC")),
+                Optional.of(verifyPage(query.page())), Optional.of(verifyLimit(query.limit())));
 
         PageableDomain<Delivery> pageableDomain = repository.matching(criteria);
 
@@ -94,22 +91,17 @@ public final class DeliveriesFinder implements QueryUseCase<DeliveriesFinderQuer
 
         List<String> statusesApproved = verifyStatus(statuses, defaultStatuses);
 
-        return new Filter(
-                new FilterField("deliveryStatus"), FilterOperator.CONTAINS,
+        return new Filter(new FilterField("deliveryStatus"), FilterOperator.CONTAINS,
                 statusesApproved.stream().map(FilterValue::new).collect(Collectors.toList()));
     }
 
     private Filter filterByCode(String code) {
-        return new Filter(
-                new FilterField("code"),
-                FilterOperator.EQUAL,
+        return new Filter(new FilterField("code"), FilterOperator.EQUAL,
                 new FilterValue(DeliveryCode.fromValue(code).value()));
     }
 
     private Filter filterByMunicipality(String municipality) {
-        return new Filter(
-                new FilterField("municipality"),
-                FilterOperator.EQUAL,
+        return new Filter(new FilterField("municipality"), FilterOperator.EQUAL,
                 new FilterValue(MunicipalityCode.fromValue(municipality).value()));
     }
 
@@ -132,17 +124,12 @@ public final class DeliveriesFinder implements QueryUseCase<DeliveriesFinderQuer
             throw new ErrorFromInfrastructure();
         }
 
-        List<DeliveryResponse> deliveriesResponse = pageableDomain.items()
-                .stream().map(DeliveryResponse::fromAggregate).collect(Collectors.toList());
+        List<DeliveryResponse> deliveriesResponse = pageableDomain.items().stream().map(DeliveryResponse::fromAggregate)
+                .collect(Collectors.toList());
 
-        return new PageableResponse<>(
-                deliveriesResponse,
-                pageableDomain.currentPage().get(),
-                pageableDomain.numberOfElements().get(),
-                pageableDomain.totalElements().get(),
-                pageableDomain.totalPages().get(),
-                pageableDomain.size().get()
-        );
+        return new PageableResponse<>(deliveriesResponse, pageableDomain.currentPage().get(),
+                pageableDomain.numberOfElements().get(), pageableDomain.totalElements().get(),
+                pageableDomain.totalPages().get(), pageableDomain.size().get());
     }
 
     private boolean isManager(Roles role) {

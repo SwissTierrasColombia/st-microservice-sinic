@@ -2,8 +2,7 @@ package com.ai.st.microservice.sinic.modules.shared.infrastructure.persistence.e
 
 public enum DeliveryTypeEnum {
 
-    XTF("ARCHIVOS XTF"),
-    FLAT("ARCHIVOS PLANOS");
+    XTF("ARCHIVOS XTF"), FLAT("ARCHIVOS PLANOS");
 
     private String type;
 

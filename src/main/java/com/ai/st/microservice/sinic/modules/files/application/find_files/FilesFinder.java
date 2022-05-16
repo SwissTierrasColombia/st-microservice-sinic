@@ -33,8 +33,8 @@ public final class FilesFinder implements QueryUseCase<FilesFinderQuery, ListRes
 
         verifyPermissions(deliveryId, query.role(), query.managerCode());
 
-        return new ListResponse<>(fileRepository.findByDeliveryId(deliveryId)
-                .stream().map(FileResponse::fromAggregate).collect(Collectors.toList()));
+        return new ListResponse<>(fileRepository.findByDeliveryId(deliveryId).stream().map(FileResponse::fromAggregate)
+                .collect(Collectors.toList()));
     }
 
     private void verifyPermissions(DeliveryId deliveryId, Roles role, Long managerCode) {
@@ -47,7 +47,8 @@ public final class FilesFinder implements QueryUseCase<FilesFinderQuery, ListRes
 
         if (role.equals(Roles.MANAGER)) {
             // verify status of the delivery
-            if (!delivery.deliveryBelongToManager(ManagerCode.fromValue(managerCode)) || !delivery.isAvailableToManager()) {
+            if (!delivery.deliveryBelongToManager(ManagerCode.fromValue(managerCode))
+                    || !delivery.isAvailableToManager()) {
                 throw new UnauthorizedToSearchDelivery();
             }
         }

@@ -8,6 +8,8 @@ import com.ai.st.microservice.common.exceptions.DisconnectedMicroserviceExceptio
 
 import com.ai.st.microservice.sinic.modules.shared.application.Roles;
 import com.ai.st.microservice.sinic.modules.shared.application.SubRoles;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.SCMTracing;
+import com.ai.st.microservice.sinic.modules.shared.infrastructure.tracing.TracingKeyword;
 import com.google.common.io.Files;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
@@ -30,8 +32,7 @@ public abstract class ApiController {
         this.managerBusiness = managerBusiness;
     }
 
-    protected MicroserviceUserDto getUserSession(String headerAuthorization)
-            throws DisconnectedMicroserviceException {
+    protected MicroserviceUserDto getUserSession(String headerAuthorization) throws DisconnectedMicroserviceException {
         MicroserviceUserDto userDtoSession = administrationBusiness.getUserByToken(headerAuthorization);
         if (userDtoSession == null) {
             throw new DisconnectedMicroserviceException("Ha ocurrido un error consultando el usuario");
@@ -39,13 +40,25 @@ public abstract class ApiController {
         return userDtoSession;
     }
 
-    protected InformationSession getInformationSession(String headerAuthorization) throws DisconnectedMicroserviceException {
+    protected InformationSession getInformationSession(String headerAuthorization)
+            throws DisconnectedMicroserviceException {
         MicroserviceUserDto userDtoSession = this.getUserSession(headerAuthorization);
+
+        SCMTracing.addCustomParameter(TracingKeyword.USER_ID, userDtoSession.getId());
+        SCMTracing.addCustomParameter(TracingKeyword.USER_EMAIL, userDtoSession.getEmail());
+        SCMTracing.addCustomParameter(TracingKeyword.USER_NAME, userDtoSession.getUsername());
+
         if (administrationBusiness.isManager(userDtoSession)) {
+            SCMTracing.addCustomParameter(TracingKeyword.IS_MANAGER, true);
             MicroserviceManagerDto managerDto = managerBusiness.getManagerByUserCode(userDtoSession.getId());
-            SubRoles subRole = managerBusiness.userManagerIsSINIC(userDtoSession.getId()) ? SubRoles.SINIC_MANAGER : SubRoles.DIRECTOR;
-            return new InformationSession(Roles.MANAGER, managerDto.getId(), userDtoSession.getId(), managerDto.getName(), subRole);
+            SCMTracing.addCustomParameter(TracingKeyword.MANAGER_ID, managerDto.getId());
+            SCMTracing.addCustomParameter(TracingKeyword.MANAGER_NAME, managerDto.getName());
+            SubRoles subRole = managerBusiness.userManagerIsSINIC(userDtoSession.getId()) ? SubRoles.SINIC_MANAGER
+                    : SubRoles.DIRECTOR;
+            return new InformationSession(Roles.MANAGER, managerDto.getId(), userDtoSession.getId(),
+                    managerDto.getName(), subRole);
         } else if (administrationBusiness.isAdministrator(userDtoSession)) {
+            SCMTracing.addCustomParameter(TracingKeyword.IS_ADMIN, true);
             return new InformationSession(Roles.CADASTRAL_AUTHORITY, userDtoSession.getId());
         }
         throw new RuntimeException("User information not found");
@@ -53,11 +66,8 @@ public abstract class ApiController {
 
     protected ResponseEntity<?> responseFile(File file, MediaType mediaType, InputStreamResource resource) {
         String extension = Files.getFileExtension(file.getName());
-        return ResponseEntity.ok().header(
-                        HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment;filename=" + file.getName())
-                .contentType(mediaType).contentLength(file.length())
-                .header("extension", extension)
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName())
+                .contentType(mediaType).contentLength(file.length()).header("extension", extension)
                 .header("filename", file.getName() + extension).body(resource);
     }
 

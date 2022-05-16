@@ -8,11 +8,7 @@ public class DeliveryPublicStatusChangerCommand implements Command {
     private final Status status;
 
     public enum Status {
-        SENT_CADASTRAL_AUTHORITY,
-        IN_QUEUE_TO_IMPORT,
-        IMPORTING,
-        SUCCESS_IMPORT,
-        FAILED_IMPORT,
+        SENT_CADASTRAL_AUTHORITY, IN_QUEUE_TO_IMPORT, IMPORTING, SUCCESS_IMPORT, FAILED_IMPORT,
     }
 
     public DeliveryPublicStatusChangerCommand(Long deliveryId, Status status) {
