@@ -28,4 +28,10 @@ eureka:
 server:
   port: 8241
 
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
+
 
