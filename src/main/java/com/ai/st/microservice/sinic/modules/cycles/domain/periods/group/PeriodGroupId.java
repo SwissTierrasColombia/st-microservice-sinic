@@ -1,21 +1,21 @@
-package com.ai.st.microservice.sinic.modules.periods.domain;
+package com.ai.st.microservice.sinic.modules.cycles.domain.periods.group;
 
 import com.google.auto.value.AutoValue;
 
 @AutoValue
-public abstract class PeriodId {
+public abstract class PeriodGroupId {
 
     public abstract String value();
 
     public static Builder builder() {
-        return new AutoValue_PeriodId.Builder();
+        return new AutoValue_PeriodGroupId.Builder();
     }
 
     @AutoValue.Builder
     public abstract static class Builder {
         public abstract Builder value(String value);
 
-        public abstract PeriodId build();
+        public abstract PeriodGroupId build();
     }
 
 }

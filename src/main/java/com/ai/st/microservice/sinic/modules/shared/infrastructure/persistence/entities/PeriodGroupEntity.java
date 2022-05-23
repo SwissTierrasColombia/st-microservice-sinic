@@ -9,7 +9,7 @@ public class PeriodGroupEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "auto_id", nullable = false)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     @Column(name = "uuid", nullable = false)

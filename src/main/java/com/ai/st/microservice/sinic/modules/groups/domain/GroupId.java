@@ -8,7 +8,7 @@ public abstract class GroupId {
     public abstract String value();
 
     public static GroupId of(String value) {
-        return GroupId.builder().value(value.toUpperCase()).build();
+        return GroupId.builder().value(value).build();
     }
 
     public static GroupId generate() {

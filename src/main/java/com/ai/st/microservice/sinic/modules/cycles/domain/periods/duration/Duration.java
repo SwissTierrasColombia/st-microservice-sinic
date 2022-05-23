@@ -1,4 +1,4 @@
-package com.ai.st.microservice.sinic.modules.periods.domain.duration;
+package com.ai.st.microservice.sinic.modules.cycles.domain.periods.duration;
 
 import com.google.auto.value.AutoValue;
 

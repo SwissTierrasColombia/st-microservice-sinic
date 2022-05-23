@@ -1,7 +1,8 @@
-package com.ai.st.microservice.sinic.modules.periods.domain;
+package com.ai.st.microservice.sinic.modules.cycles.domain.periods;
 
-import com.ai.st.microservice.sinic.modules.periods.domain.duration.Duration;
-import com.ai.st.microservice.sinic.modules.periods.domain.group.PeriodGroup;
+import com.ai.st.microservice.sinic.modules.cycles.domain.CycleId;
+import com.ai.st.microservice.sinic.modules.cycles.domain.periods.duration.Duration;
+import com.ai.st.microservice.sinic.modules.cycles.domain.periods.group.PeriodGroup;
 import com.google.auto.value.AutoValue;
 
 import java.util.List;
@@ -11,9 +12,9 @@ public abstract class Period {
 
     public abstract PeriodId id();
 
-    public abstract PeriodYear year();
-
     public abstract Duration duration();
+
+    public abstract CycleId cycleId();
 
     public abstract List<PeriodGroup> periodGroups();
 
@@ -26,9 +27,9 @@ public abstract class Period {
 
         public abstract Builder id(PeriodId id);
 
-        public abstract Builder year(PeriodYear year);
-
         public abstract Builder duration(Duration duration);
+
+        public abstract Builder cycleId(CycleId cycleId);
 
         public abstract Builder periodGroups(List<PeriodGroup> periodGroups);
 

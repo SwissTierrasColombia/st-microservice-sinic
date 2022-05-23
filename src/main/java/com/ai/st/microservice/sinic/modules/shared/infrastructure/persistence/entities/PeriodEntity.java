@@ -9,14 +9,14 @@ public class PeriodEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "auto_id", nullable = false)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     @Column(name = "uuid", nullable = false)
     private String uuid;
 
-    @Column(name = "year", nullable = false)
-    private Integer year;
+    @Column(name = "cycle_id", nullable = false)
+    private String cycleId;
 
     @Column(name = "date_start", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -46,12 +46,12 @@ public class PeriodEntity {
         this.uuid = uuid;
     }
 
-    public Integer getYear() {
-        return year;
+    public String getCycleId() {
+        return cycleId;
     }
 
-    public void setYear(Integer year) {
-        this.year = year;
+    public void setCycleId(String cycleId) {
+        this.cycleId = cycleId;
     }
 
     public Date getDateStart() {

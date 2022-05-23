@@ -39,7 +39,7 @@ public final class GroupGetController extends ApiController {
 
     @GetMapping(value = "api/sinic/v1/groups", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Find groups")
-    @ApiResponses(value = { @ApiResponse(code = 201, message = "Groups found"),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Groups found"),
             @ApiResponse(code = 500, message = "Error Server", response = String.class) })
     @ResponseBody
     public ResponseEntity<?> findGroups(@RequestHeader("authorization") String headerAuthorization) {
@@ -54,7 +54,7 @@ public final class GroupGetController extends ApiController {
 
             responseDto = groupFinder.handle(new GroupFinderQuery()).list();
 
-            httpStatus = HttpStatus.CREATED;
+            httpStatus = HttpStatus.OK;
 
         } catch (DomainError e) {
             log.error("Error GroupGetController@findGroups#Domain ---> " + e.errorMessage());
