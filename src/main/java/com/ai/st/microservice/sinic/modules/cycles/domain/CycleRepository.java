@@ -13,4 +13,6 @@ public interface CycleRepository {
 
     void save(Cycle cycle);
 
+    void update(Cycle cycle);
+
 }

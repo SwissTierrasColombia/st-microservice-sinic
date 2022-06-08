@@ -16,7 +16,24 @@ public abstract class PeriodGroup {
 
     public abstract Duration duration();
 
-    public static Builder builder() {
+    public static PeriodGroup create(PeriodGroupId id, GroupId groupId, PeriodId periodId, Duration duration) {
+        return PeriodGroup.builder().id(id).groupId(groupId).periodId(periodId).duration(duration).build();
+    }
+
+    public static PeriodGroup create(GroupId groupId, PeriodId periodId, Duration duration) {
+        return PeriodGroup.builder().id(PeriodGroupId.generate()).groupId(groupId).periodId(periodId).duration(duration)
+                .build();
+    }
+
+    public boolean isBetweenPeriodDuration(Duration periodDuration) {
+        final var startValidation = duration().start().value().after(periodDuration.finish().value())
+                || duration().start().value().before(periodDuration.start().value());
+        final var finishValidation = duration().finish().value().after(periodDuration.finish().value())
+                || duration().finish().value().before(periodDuration.start().value());
+        return !(startValidation || finishValidation);
+    }
+
+    private static Builder builder() {
         return new AutoValue_PeriodGroup.Builder();
     }
 

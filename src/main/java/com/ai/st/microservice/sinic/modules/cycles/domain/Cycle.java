@@ -20,14 +20,23 @@ public abstract class Cycle {
     public abstract List<Period> periods();
 
     public static Cycle create(CycleId id, CycleYear year, CycleObservations observations,
-            CycleAmountPeriods amountPeriods) {
-        return Cycle.builder().id(id).year(year).observations(observations).periods(new ArrayList<>())
+            CycleAmountPeriods amountPeriods, List<Period> periods) {
+        return Cycle.builder().id(id).year(year).observations(observations).periods(periods)
                 .amountPeriods(amountPeriods).build();
     }
 
     public static Cycle create(CycleYear year, CycleObservations observations, CycleAmountPeriods amountPeriods) {
         return Cycle.builder().id(CycleId.generate()).year(year).periods(new ArrayList<>()).observations(observations)
                 .amountPeriods(amountPeriods).build();
+    }
+
+    public void setPeriods(List<Period> periods) {
+        periods().clear();
+        periods.forEach(this::addPeriod);
+    }
+
+    public void addPeriod(Period period) {
+        this.periods().add(period);
     }
 
     public static Builder builder() {

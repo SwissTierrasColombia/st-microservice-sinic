@@ -15,7 +15,7 @@ public abstract class GroupId {
         return GroupId.of(java.util.UUID.randomUUID().toString());
     }
 
-    public static Builder builder() {
+    private static Builder builder() {
         return new AutoValue_GroupId.Builder();
     }
 

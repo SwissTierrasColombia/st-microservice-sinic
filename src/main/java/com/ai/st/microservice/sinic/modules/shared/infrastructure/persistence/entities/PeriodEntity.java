@@ -2,6 +2,7 @@ package com.ai.st.microservice.sinic.modules.shared.infrastructure.persistence.e
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "periods", schema = "sinic")
@@ -29,6 +30,9 @@ public class PeriodEntity {
     @Column(name = "created_at", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
+
+    @Transient
+    private List<PeriodGroupEntity> periodGroups;
 
     public Long getId() {
         return id;
@@ -76,5 +80,13 @@ public class PeriodEntity {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public List<PeriodGroupEntity> getPeriodGroups() {
+        return periodGroups;
+    }
+
+    public void setPeriodGroups(List<PeriodGroupEntity> periodGroups) {
+        this.periodGroups = periodGroups;
     }
 }

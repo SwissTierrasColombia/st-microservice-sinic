@@ -14,8 +14,7 @@ public abstract class Group {
     }
 
     public static Group fromPrimitives(String id, String name) {
-        return Group.builder().name(GroupName.builder().value(name).build()).id(GroupId.builder().value(id).build())
-                .build();
+        return Group.builder().name(GroupName.builder().value(name).build()).id(GroupId.of(id)).build();
     }
 
     public static Builder builder() {

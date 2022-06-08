@@ -18,7 +18,11 @@ public abstract class Period {
 
     public abstract List<PeriodGroup> periodGroups();
 
-    public static Builder builder() {
+    public static Period create(PeriodId id, CycleId cycleId, Duration duration, List<PeriodGroup> periodGroups) {
+        return Period.builder().id(id).duration(duration).cycleId(cycleId).periodGroups(periodGroups).build();
+    }
+
+    private static Builder builder() {
         return new AutoValue_Period.Builder();
     }
 

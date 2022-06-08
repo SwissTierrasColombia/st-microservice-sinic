@@ -7,7 +7,15 @@ public abstract class PeriodId {
 
     public abstract String value();
 
-    public static Builder builder() {
+    public static PeriodId of(String value) {
+        return PeriodId.builder().value(value).build();
+    }
+
+    public static PeriodId generate() {
+        return PeriodId.of(java.util.UUID.randomUUID().toString());
+    }
+
+    private static Builder builder() {
         return new AutoValue_PeriodId.Builder();
     }
 

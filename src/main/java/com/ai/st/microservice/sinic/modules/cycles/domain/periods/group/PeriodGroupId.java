@@ -7,7 +7,15 @@ public abstract class PeriodGroupId {
 
     public abstract String value();
 
-    public static Builder builder() {
+    public static PeriodGroupId of(String value) {
+        return PeriodGroupId.builder().value(value).build();
+    }
+
+    public static PeriodGroupId generate() {
+        return PeriodGroupId.of(java.util.UUID.randomUUID().toString());
+    }
+
+    private static Builder builder() {
         return new AutoValue_PeriodGroupId.Builder();
     }
 
