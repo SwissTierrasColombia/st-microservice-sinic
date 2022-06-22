@@ -30,6 +30,9 @@ public final class FileEntity {
     @Column(name = "is_valid")
     private Boolean isValid;
 
+    @Column(name = "size")
+    private Long size;
+
     @Column(name = "user_code", nullable = false)
     private Long userCode;
 
@@ -143,5 +146,13 @@ public final class FileEntity {
 
     public void setLog(String log) {
         this.log = log;
+    }
+
+    public Long getSize() {
+        return size;
+    }
+
+    public void setSize(Long size) {
+        this.size = size;
     }
 }

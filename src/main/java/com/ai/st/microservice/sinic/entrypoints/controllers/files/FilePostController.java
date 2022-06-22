@@ -129,9 +129,11 @@ public final class FilePostController extends ApiController {
             throw new InputValidationException("El comprimido no contiene un archivo en formato XTF.");
         }
 
+        long size = file.getSize();
+
         storeFile.deleteFile(temporalFilePath);
 
-        return new FileAdderCommand(deliveryId, managerCode, userCode, request.getObservations(), file.getBytes(),
+        return new FileAdderCommand(deliveryId, managerCode, userCode, request.getObservations(), file.getBytes(), size,
                 extension);
     }
 

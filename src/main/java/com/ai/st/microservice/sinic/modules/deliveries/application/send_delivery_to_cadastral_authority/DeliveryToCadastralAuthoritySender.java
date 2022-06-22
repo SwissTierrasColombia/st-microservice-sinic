@@ -97,9 +97,16 @@ public final class DeliveryToCadastralAuthoritySender
         databaseManager.createSchema(schemaName);
         int index = 1;
         for (File file : files) {
-            messageBroker.sendDataToIliProcess(file.uuid(), file.url(), schemaName, index, files.size());
+            messageBroker.sendDataToIliProcess(file.uuid(), file.url(), schemaName, index, files.size(),
+                    isLarge(file.size().value()));
             index++;
         }
+    }
+
+    private boolean isLarge(long bytes) {
+        long kilobytes = (bytes / 1024);
+        long megabytes = (kilobytes / 1024);
+        return megabytes > 200;
     }
 
 }

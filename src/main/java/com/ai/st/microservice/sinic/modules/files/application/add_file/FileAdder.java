@@ -53,7 +53,8 @@ public final class FileAdder implements CommandUseCase<FileAdderCommand> {
 
         String pathUrl = saveFile(deliveryId, uuid, command);
 
-        File file = File.create(uuid, observations, new FileUrl(pathUrl), version, userCode, deliveryId, dateTime);
+        File file = File.createSuccessfulFile(uuid, observations, new FileUrl(pathUrl), version, userCode, deliveryId,
+                dateTime, new FileSize(command.size()));
 
         fileRepository.save(file);
     }
@@ -91,7 +92,7 @@ public final class FileAdder implements CommandUseCase<FileAdderCommand> {
         String namespace = buildNamespace(deliveryId);
         String pathUrl = storeFile.storeFilePermanently(command.bytes(), command.extension(), namespace);
 
-        iliMicroservice.sendToValidation(uuid, UserCode.fromValue(command.userCode()), pathUrl, false, false);
+        // iliMicroservice.sendToValidation(uuid, UserCode.fromValue(command.userCode()), pathUrl, false, false);
 
         return pathUrl;
     }
