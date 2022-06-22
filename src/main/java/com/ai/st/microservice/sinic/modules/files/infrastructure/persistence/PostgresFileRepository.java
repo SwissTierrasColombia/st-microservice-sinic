@@ -44,8 +44,9 @@ public final class PostgresFileRepository implements FileRepository {
         fileEntity.setUuid(file.uuid().value());
         fileEntity.setCreatedAt(file.date().value());
         fileEntity.setDateStatusAt(file.dateStatus().value());
-        fileEntity.setValid(null);
+        fileEntity.setValid(file.valid().value());
         fileEntity.setLog(null);
+        fileEntity.setSize(file.size().value());
         fileEntity.setObservations(file.observations().value());
         fileEntity.setStatus(mappingEnum(file.status()));
         fileEntity.setUrl(file.url().value());
@@ -115,7 +116,7 @@ public final class PostgresFileRepository implements FileRepository {
         return File.fromPrimitives(fileEntity.getId(), fileEntity.getUuid(), fileEntity.getCreatedAt(),
                 fileEntity.getDateStatusAt(), fileEntity.getValid(), fileEntity.getObservations(),
                 fileEntity.getStatus().name(), fileEntity.getUrl(), fileEntity.getVersion(), fileEntity.getLog(),
-                fileEntity.getUserCode(), fileEntity.getDelivery().getId());
+                fileEntity.getUserCode(), fileEntity.getDelivery().getId(), fileEntity.getSize());
     }
 
 }

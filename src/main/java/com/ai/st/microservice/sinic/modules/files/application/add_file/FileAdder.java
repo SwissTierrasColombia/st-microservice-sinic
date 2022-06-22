@@ -13,7 +13,6 @@ import com.ai.st.microservice.sinic.modules.shared.domain.ManagerCode;
 import com.ai.st.microservice.sinic.modules.shared.domain.Service;
 import com.ai.st.microservice.sinic.modules.shared.domain.UserCode;
 import com.ai.st.microservice.sinic.modules.shared.domain.contracts.DateTime;
-import com.ai.st.microservice.sinic.modules.shared.domain.contracts.ILIMicroservice;
 import com.ai.st.microservice.sinic.modules.shared.domain.contracts.StoreFile;
 
 import java.util.UUID;
@@ -25,17 +24,15 @@ public final class FileAdder implements CommandUseCase<FileAdderCommand> {
     private final FileRepository fileRepository;
     private final DateTime dateTime;
     private final StoreFile storeFile;
-    private final ILIMicroservice iliMicroservice;
 
     private final static int MAXIMUM_FILES_PER_DELIVERY = 15;
 
     public FileAdder(DeliveryRepository deliveryRepository, FileRepository fileRepository, DateTime dateTime,
-            StoreFile storeFile, ILIMicroservice iliMicroservice) {
+            StoreFile storeFile) {
         this.deliveryRepository = deliveryRepository;
         this.fileRepository = fileRepository;
         this.dateTime = dateTime;
         this.storeFile = storeFile;
-        this.iliMicroservice = iliMicroservice;
     }
 
     @Override
@@ -51,9 +48,10 @@ public final class FileAdder implements CommandUseCase<FileAdderCommand> {
 
         verifyPermissions(deliveryId, managerCode);
 
-        String pathUrl = saveFile(deliveryId, uuid, command);
+        String pathUrl = saveFile(deliveryId, command);
 
-        File file = File.create(uuid, observations, new FileUrl(pathUrl), version, userCode, deliveryId, dateTime);
+        File file = File.createSuccessfulFile(uuid, observations, new FileUrl(pathUrl), version, userCode, deliveryId,
+                dateTime, new FileSize(command.size()));
 
         fileRepository.save(file);
     }
@@ -86,14 +84,9 @@ public final class FileAdder implements CommandUseCase<FileAdderCommand> {
 
     }
 
-    private String saveFile(DeliveryId deliveryId, FileUUID uuid, FileAdderCommand command) {
-
+    private String saveFile(DeliveryId deliveryId, FileAdderCommand command) {
         String namespace = buildNamespace(deliveryId);
-        String pathUrl = storeFile.storeFilePermanently(command.bytes(), command.extension(), namespace);
-
-        iliMicroservice.sendToValidation(uuid, UserCode.fromValue(command.userCode()), pathUrl, false, false);
-
-        return pathUrl;
+        return storeFile.storeFilePermanently(command.bytes(), command.extension(), namespace);
     }
 
     private String buildNamespace(DeliveryId deliveryId) {
