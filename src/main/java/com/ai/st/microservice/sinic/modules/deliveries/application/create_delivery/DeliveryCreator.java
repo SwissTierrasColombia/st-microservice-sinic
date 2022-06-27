@@ -2,6 +2,7 @@ package com.ai.st.microservice.sinic.modules.deliveries.application.create_deliv
 
 import com.ai.st.microservice.sinic.modules.deliveries.domain.*;
 import com.ai.st.microservice.sinic.modules.deliveries.domain.contracts.DeliveryRepository;
+import com.ai.st.microservice.sinic.modules.deliveries.domain.exceptions.UnauthorizedToCreateDelivery;
 import com.ai.st.microservice.sinic.modules.shared.application.CommandUseCase;
 import com.ai.st.microservice.sinic.modules.shared.domain.*;
 import com.ai.st.microservice.sinic.modules.shared.domain.contracts.DateTime;
@@ -34,6 +35,10 @@ public final class DeliveryCreator implements CommandUseCase<CreateDeliveryComma
         UserCode userCode = UserCode.fromValue(command.userCode());
 
         verifyManagerBelongsToMunicipality(managerCode, municipalityCode);
+
+        if (!command.type().equals(CreateDeliveryCommand.DeliveryType.XTF)) {
+            throw new UnauthorizedToCreateDelivery("Solo están permitidas las entregas de tipo XTF");
+        }
 
         Delivery delivery = Delivery.create(DeliveryCode.fromValue(generateDeliveryCode()), defineManager(managerCode),
                 defineLocality(municipalityCode), DeliveryObservations.fromValue(command.observations()), userCode,
