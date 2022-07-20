@@ -5,6 +5,8 @@ import com.ai.st.microservice.common.business.ManagerBusiness;
 import com.ai.st.microservice.common.dto.general.BasicResponseDto;
 import com.ai.st.microservice.common.exceptions.InputValidationException;
 import com.ai.st.microservice.sinic.entrypoints.controllers.ApiController;
+import com.ai.st.microservice.sinic.modules.deliveries.application.process_pending_deliveries.PendingDeliveryExecutor;
+import com.ai.st.microservice.sinic.modules.deliveries.application.process_pending_deliveries.PendingDeliveryExecutorCommand;
 import com.ai.st.microservice.sinic.modules.deliveries.application.update_delivery.DeliveryUpdater;
 import com.ai.st.microservice.sinic.modules.deliveries.application.update_delivery.DeliveryUpdaterCommand;
 import com.ai.st.microservice.sinic.modules.shared.domain.DomainError;
@@ -25,11 +27,13 @@ public final class DeliveryPutController extends ApiController {
     private final Logger log = LoggerFactory.getLogger(DeliveryPutController.class);
 
     private final DeliveryUpdater deliveryUpdater;
+    private final PendingDeliveryExecutor pendingDeliveryExecutor;
 
     public DeliveryPutController(AdministrationBusiness administrationBusiness, ManagerBusiness managerBusiness,
-            DeliveryUpdater deliveryUpdater) {
+            DeliveryUpdater deliveryUpdater, PendingDeliveryExecutor pendingDeliveryExecutor) {
         super(administrationBusiness, managerBusiness);
         this.deliveryUpdater = deliveryUpdater;
+        this.pendingDeliveryExecutor = pendingDeliveryExecutor;
     }
 
     @PutMapping(value = "api/sinic/v1/deliveries/{deliveryId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -79,6 +83,42 @@ public final class DeliveryPutController extends ApiController {
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
             responseDto = new BasicResponseDto(e.getMessage());
             SCMTracing.sendError(e.getMessage());
+        }
+
+        return new ResponseEntity<>(responseDto, httpStatus);
+    }
+
+    @PutMapping(value = "api/sinic/v1/process-pending-deliveries", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Send to process the pending deliveries")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Deliveries sent to process"),
+            @ApiResponse(code = 500, message = "Error Server", response = String.class) })
+    @ResponseBody
+    public ResponseEntity<?> processPendingDeliveries() {
+
+        HttpStatus httpStatus;
+        Object responseDto;
+
+        try {
+
+            SCMTracing.setTransactionName("processPendingDeliveries");
+
+            System.out.println("SO FAR SO GOOD 1 ---> ");
+            pendingDeliveryExecutor.handle(new PendingDeliveryExecutorCommand());
+
+            httpStatus = HttpStatus.OK;
+            responseDto = new BasicResponseDto("Se han enviado a procesar las entregas pendientes!");
+
+        } catch (DomainError e) {
+            log.error("Error DeliveryPutController@processPendingDeliveries#Domain ---> " + e.errorMessage());
+            httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;
+            responseDto = new BasicResponseDto(e.errorMessage());
+            SCMTracing.sendError(e.getMessage());
+        } catch (Exception e) {
+            log.error("Error DeliveryPutController@processPendingDeliveries#General ---> " + e.getMessage());
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            responseDto = new BasicResponseDto(e.getMessage());
+            SCMTracing.sendError(e.getMessage());
+            e.printStackTrace();
         }
 
         return new ResponseEntity<>(responseDto, httpStatus);

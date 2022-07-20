@@ -6,6 +6,8 @@ import com.ai.st.microservice.sinic.modules.deliveries.domain.DeliveryStatus;
 import com.ai.st.microservice.sinic.modules.shared.domain.PageableDomain;
 import com.ai.st.microservice.sinic.modules.shared.domain.criteria.Criteria;
 
+import java.util.List;
+
 public interface DeliveryRepository {
 
     Delivery search(DeliveryId deliveryId);
@@ -19,5 +21,7 @@ public interface DeliveryRepository {
     void update(Delivery delivery);
 
     void changeStatus(DeliveryId deliveryId, DeliveryStatus status);
+
+    List<Delivery> findBy(List<DeliveryStatus> status);
 
 }
