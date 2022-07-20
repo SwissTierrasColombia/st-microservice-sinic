@@ -12,7 +12,7 @@ ENV NEW_RELIC_ENVIRONMENT=$NEW_RELIC_ENVIRONMENT
 
 VOLUME /tmp
 
-ADD ./target/st-microservice-sinic-1.3.2.jar st-microservice-sinic.jar
+ADD ./target/st-microservice-sinic-1.3.3.jar st-microservice-sinic.jar
 ADD ./target/newrelic.jar newrelic.jar
 ADD ./newrelic.yml newrelic.yml
 

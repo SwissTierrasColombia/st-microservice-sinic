@@ -169,6 +169,12 @@ public final class PostgresDeliveryRepository implements DeliveryRepository {
 
     }
 
+    @Override
+    public List<Delivery> findBy(List<DeliveryStatus> status) {
+        return deliveryJPARepository.findByStatuses(status.stream().map(this::mappingEnum).collect(Collectors.toList()))
+                .stream().map(this::mapping).collect(Collectors.toList());
+    }
+
     private Specification<DeliveryEntity> addFilters(List<Filter> filters) {
         Specification<DeliveryEntity> specification = where(createSpecification(filters.remove(0)));
         for (Filter filter : filters) {
