@@ -25,7 +25,7 @@ public final class PendingDeliveryExecutor implements CommandUseCase<PendingDeli
     private final IliMessageBroker messageBroker;
 
     public PendingDeliveryExecutor(DeliveryRepository deliveryRepository, FileRepository fileRepository,
-                                   IliMessageBroker messageBroker) {
+            IliMessageBroker messageBroker) {
         this.deliveryRepository = deliveryRepository;
         this.fileRepository = fileRepository;
         this.messageBroker = messageBroker;
