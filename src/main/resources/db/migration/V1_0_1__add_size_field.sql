@@ -1,0 +1,1 @@
+ALTER TABLE sinic.files ADD "size" integer NULL;

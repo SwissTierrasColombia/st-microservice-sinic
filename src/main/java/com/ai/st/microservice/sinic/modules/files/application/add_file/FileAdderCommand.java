@@ -9,15 +9,17 @@ public final class FileAdderCommand implements Command {
     private final Long userCode;
     private final String observations;
     private final byte[] bytes;
+    private final long size;
     private final String extension;
 
     public FileAdderCommand(Long deliveryId, Long managerCode, Long userCode, String observations, byte[] bytes,
-            String extension) {
+            long size, String extension) {
         this.deliveryId = deliveryId;
         this.managerCode = managerCode;
         this.userCode = userCode;
         this.observations = observations;
         this.bytes = bytes;
+        this.size = size;
         this.extension = extension;
     }
 
@@ -43,5 +45,9 @@ public final class FileAdderCommand implements Command {
 
     public Long userCode() {
         return userCode;
+    }
+
+    public long size() {
+        return size;
     }
 }
