@@ -17,7 +17,8 @@ public final class CycleMapper {
 
         return Cycle.create(CycleId.of(cycleEntity.getUuid()), CycleYear.of(cycleEntity.getYear()),
                 CycleObservations.of(cycleEntity.getObservations()),
-                CycleAmountPeriods.of(cycleEntity.getAmountPeriods()), periods);
+                CycleAmountPeriods.of(cycleEntity.getAmountPeriods()), periods,
+                CycleStatus.of(cycleEntity.getStatus()));
     }
 
     private static List<Period> mapperPeriods(List<PeriodEntity> periodEntities) {

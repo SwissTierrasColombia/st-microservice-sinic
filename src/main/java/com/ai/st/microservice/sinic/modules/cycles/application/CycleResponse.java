@@ -11,12 +11,14 @@ public abstract class CycleResponse implements Response {
 
     public abstract Integer year();
 
+    public abstract Boolean status();
+
     public abstract Integer amountPeriods();
 
     public abstract String observations();
 
     public static CycleResponse from(Cycle cycle) {
-        return CycleResponse.builder().id(cycle.id().value()).year(cycle.year().value())
+        return CycleResponse.builder().id(cycle.id().value()).year(cycle.year().value()).status(cycle.status().value())
                 .amountPeriods(cycle.amountPeriods().value()).observations(cycle.observations().value()).build();
     }
 
@@ -33,6 +35,8 @@ public abstract class CycleResponse implements Response {
         public abstract Builder amountPeriods(Integer observations);
 
         public abstract Builder observations(String observations);
+
+        public abstract Builder status(Boolean status);
 
         public abstract CycleResponse build();
     }

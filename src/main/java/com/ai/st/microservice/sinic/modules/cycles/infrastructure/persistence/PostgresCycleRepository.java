@@ -8,6 +8,7 @@ import com.ai.st.microservice.sinic.modules.cycles.infrastructure.persistence.jp
 import com.ai.st.microservice.sinic.modules.shared.infrastructure.persistence.entities.CycleEntity;
 import com.ai.st.microservice.sinic.modules.shared.infrastructure.persistence.entities.PeriodEntity;
 import com.ai.st.microservice.sinic.modules.shared.infrastructure.persistence.entities.PeriodGroupEntity;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -50,7 +51,7 @@ public class PostgresCycleRepository implements CycleRepository {
 
     @Override
     public List<Cycle> find() {
-        return cycleJPARepository.findAll().stream().map(cycle -> {
+        return cycleJPARepository.findAll(Sort.by(Sort.Direction.ASC, "year")).stream().map(cycle -> {
             cycle.setPeriods(findPeriodsByCycle(cycle.getUuid()));
             return CycleMapper.from(cycle);
         }).collect(Collectors.toList());
@@ -64,6 +65,7 @@ public class PostgresCycleRepository implements CycleRepository {
         cycleEntity.setObservations(cycle.observations().value());
         cycleEntity.setCreatedAt(new Date());
         cycleEntity.setYear(cycle.year().value());
+        cycleEntity.setStatus(cycle.status().value());
         cycleJPARepository.save(cycleEntity);
     }
 
@@ -73,10 +75,22 @@ public class PostgresCycleRepository implements CycleRepository {
         CycleEntity cycleEntity = cycleJPARepository.findByUuid(cycle.id().value());
         if (cycleEntity != null) {
             cycleEntity.setObservations(cycle.observations().value());
+            cycleEntity.setAmountPeriods(cycle.amountPeriods().value());
+            cycleEntity.setStatus(cycle.status().value());
+            deletePeriods(cycle.id().value());
             if (!cycle.periods().isEmpty()) {
-                deletePeriods(cycle.id().value());
                 cycle.periods().forEach(this::createPeriod);
             }
+        }
+    }
+
+    @Transactional
+    @Override
+    public void deleteBy(CycleId cycleId) {
+        CycleEntity cycleEntity = cycleJPARepository.findByUuid(cycleId.value());
+        if (cycleEntity != null) {
+            deletePeriods(cycleId.value());
+            cycleJPARepository.deleteById(cycleEntity.getId());
         }
     }
 

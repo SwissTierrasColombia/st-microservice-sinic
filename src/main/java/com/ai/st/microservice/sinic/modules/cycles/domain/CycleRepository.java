@@ -15,4 +15,6 @@ public interface CycleRepository {
 
     void update(Cycle cycle);
 
+    void deleteBy(CycleId cycleId);
+
 }

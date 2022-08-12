@@ -17,8 +17,6 @@ public final class CycleCreator implements CommandUseCase<CycleCreatorCommand> {
     @Override
     public void handle(CycleCreatorCommand command) {
 
-        System.out.println("HELLOOOO");
-
         CycleYear year = CycleYear.of(command.year());
         CycleAmountPeriods amountPeriods = CycleAmountPeriods.of(command.amountPeriods());
         CycleObservations observations = CycleObservations.of(command.observations());

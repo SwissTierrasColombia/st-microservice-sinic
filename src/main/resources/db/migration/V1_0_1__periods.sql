@@ -10,7 +10,8 @@ CREATE TABLE sinic."cycles" (
 	"year" integer NOT NULL,
 	amount_periods integer NOT NULL,
 	observations varchar NULL,
-	created_at timestamp NOT NULL
+	created_at timestamp NOT NULL,
+	status bool NOT NULL DEFAULT false
 );
 
 CREATE TABLE sinic."periods" (

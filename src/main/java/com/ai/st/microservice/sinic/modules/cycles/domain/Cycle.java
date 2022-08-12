@@ -15,19 +15,41 @@ public abstract class Cycle {
 
     public abstract CycleObservations observations();
 
+    public abstract CycleStatus status();
+
     public abstract CycleAmountPeriods amountPeriods();
 
     public abstract List<Period> periods();
 
     public static Cycle create(CycleId id, CycleYear year, CycleObservations observations,
-            CycleAmountPeriods amountPeriods, List<Period> periods) {
-        return Cycle.builder().id(id).year(year).observations(observations).periods(periods)
+            CycleAmountPeriods amountPeriods, List<Period> periods, CycleStatus status) {
+        return Cycle.builder().id(id).year(year).observations(observations).periods(periods).status(status)
                 .amountPeriods(amountPeriods).build();
     }
 
     public static Cycle create(CycleYear year, CycleObservations observations, CycleAmountPeriods amountPeriods) {
-        return Cycle.builder().id(CycleId.generate()).year(year).periods(new ArrayList<>()).observations(observations)
-                .amountPeriods(amountPeriods).build();
+        return Cycle.builder().id(CycleId.generate()).year(year).status(CycleStatus.of(Boolean.FALSE))
+                .periods(new ArrayList<>()).observations(observations).amountPeriods(amountPeriods).build();
+    }
+
+    public Cycle withStatus(CycleStatus status) {
+        return create(this.id(), this.year(), this.observations(), this.amountPeriods(), this.periods(), status);
+    }
+
+    public Cycle withPeriods(List<Period> periods) {
+        return create(this.id(), this.year(), this.observations(), this.amountPeriods(), periods, this.status());
+    }
+
+    public Cycle withObservations(CycleObservations observations) {
+        return create(this.id(), this.year(), observations, this.amountPeriods(), this.periods(), this.status());
+    }
+
+    public Cycle withAmountPeriods(CycleAmountPeriods amountPeriods) {
+        return create(this.id(), this.year(), this.observations(), amountPeriods, this.periods(), this.status());
+    }
+
+    public boolean isActive() {
+        return this.status().value();
     }
 
     public void setPeriods(List<Period> periods) {
@@ -50,6 +72,8 @@ public abstract class Cycle {
         public abstract Builder year(CycleYear year);
 
         public abstract Builder observations(CycleObservations observations);
+
+        public abstract Builder status(CycleStatus observations);
 
         public abstract Builder amountPeriods(CycleAmountPeriods amountPeriods);
 

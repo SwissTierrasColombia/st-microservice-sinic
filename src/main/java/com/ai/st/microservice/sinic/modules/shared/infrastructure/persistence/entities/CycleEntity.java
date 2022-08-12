@@ -25,6 +25,9 @@ public class CycleEntity {
     @Column(name = "amount_periods", nullable = false)
     private Integer amountPeriods;
 
+    @Column(name = "status", nullable = false)
+    private Boolean status;
+
     @Column(name = "created_at", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
@@ -86,5 +89,13 @@ public class CycleEntity {
 
     public void setPeriods(List<PeriodEntity> periods) {
         this.periods = periods;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 }
